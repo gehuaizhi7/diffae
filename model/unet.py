@@ -69,6 +69,11 @@ class BeatGANsUNetConfig(BaseConfig):
     resnet_use_zero_module: bool = True
     # gradient checkpoint the attention operation
     attn_checkpoint: bool = False
+    # optional external z_d conditioning
+    use_zd_cond: bool = False
+    zd_cond_dim: int = None
+    # when true, autoencoder UNet ignores internal encoder cond and uses z_d only
+    zd_cond_only: bool = True
 
     def make_model(self):
         return BeatGANsUNetModel(self)
@@ -91,6 +96,14 @@ class BeatGANsUNetModel(nn.Module):
             linear(conf.embed_channels, conf.embed_channels),
         )
 
+        if conf.use_zd_cond:
+            zd_cond_dim = conf.zd_cond_dim or conf.embed_channels
+            self.zd_embed = nn.Sequential(
+                linear(zd_cond_dim, conf.embed_channels),
+                nn.SiLU(),
+                linear(conf.embed_channels, conf.embed_channels),
+            )
+
         if conf.num_classes is not None:
             self.label_emb = nn.Embedding(conf.num_classes,
                                           conf.embed_channels)
@@ -107,6 +120,8 @@ class BeatGANsUNetModel(nn.Module):
             use_zero_module=conf.resnet_use_zero_module,
             # style channels for the resnet block
             cond_emb_channels=conf.resnet_cond_channels,
+            use_zd_cond=conf.use_zd_cond,
+            zd_emb_channels=conf.embed_channels,
         )
 
         self._feature_size = ch
@@ -292,7 +307,7 @@ class BeatGANsUNetModel(nn.Module):
                 conv_nd(conf.dims, input_ch, conf.out_channels, 3, padding=1),
             )
 
-    def forward(self, x, t, y=None, **kwargs):
+    def forward(self, x, t, y=None, z_d=None, **kwargs):
         """
         Apply the model to an input batch.
 
@@ -308,6 +323,10 @@ class BeatGANsUNetModel(nn.Module):
         # hs = []
         hs = [[] for _ in range(len(self.conf.channel_mult))]
         emb = self.time_embed(timestep_embedding(t, self.time_emb_channels))
+        if self.conf.use_zd_cond and z_d is not None:
+            zd_emb = self.zd_embed(z_d)
+        else:
+            zd_emb = None
 
         if self.conf.num_classes is not None:
             raise NotImplementedError()
@@ -319,13 +338,13 @@ class BeatGANsUNetModel(nn.Module):
         k = 0
         for i in range(len(self.input_num_blocks)):
             for j in range(self.input_num_blocks[i]):
-                h = self.input_blocks[k](h, emb=emb)
+                h = self.input_blocks[k](h, emb=emb, zd=zd_emb)
                 # print(i, j, h.shape)
                 hs[i].append(h)
                 k += 1
         assert k == len(self.input_blocks)
 
-        h = self.middle_block(h, emb=emb)
+        h = self.middle_block(h, emb=emb, zd=zd_emb)
         k = 0
         for i in range(len(self.output_num_blocks)):
             for j in range(self.output_num_blocks[i]):
@@ -337,7 +356,10 @@ class BeatGANsUNetModel(nn.Module):
                 except IndexError:
                     lateral = None
                     # print(i, j, lateral)
-                h = self.output_blocks[k](h, emb=emb, lateral=lateral)
+                h = self.output_blocks[k](h,
+                                          emb=emb,
+                                          zd=zd_emb,
+                                          lateral=lateral)
                 k += 1
 
         h = h.type(x.dtype)

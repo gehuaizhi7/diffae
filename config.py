@@ -122,6 +122,22 @@ class TrainConfig(BaseConfig):
     net_enc_channel_mult: Tuple[int] = None
     net_enc_grad_checkpoint: bool = False
     net_autoenc_stochastic: bool = False
+    # z_d sparse conditioning options
+    use_zd_cond: bool = False
+    m: int = None
+    k: int = 1024
+    lambda_l1: float = 0.1
+    ista_steps: int = 5
+    beta_align: float = 0.0
+    gamma_align: float = 0.0
+    lr_D: float = 0.001
+    # use z_d as the only conditioning source in the denoiser (exact algorithm mode)
+    zd_cond_only: bool = True
+    # separate learning rates for encoder and diffusion denoiser.
+    lr_E: float = None
+    lr_eps: float = None
+    # DDIM stochasticity for sampling (eta=0 is deterministic DDIM)
+    ddim_eta: float = 0.0
     net_latent_activation: Activation = Activation.silu
     net_latent_channel_mult: Tuple[int] = (1, 2, 4)
     net_latent_condition_bias: float = 0
@@ -331,6 +347,7 @@ class TrainConfig(BaseConfig):
         )
 
     def make_model_conf(self):
+        zd_cond_dim = self.m or self.style_ch
         if self.model_name == ModelName.beatgans_ddpm:
             self.model_type = ModelType.ddpm
             self.model_conf = BeatGANsUNetConfig(
@@ -356,6 +373,9 @@ class TrainConfig(BaseConfig):
                 resnet_two_cond=self.net_beatgans_resnet_two_cond,
                 resnet_use_zero_module=self.
                 net_beatgans_resnet_use_zero_module,
+                use_zd_cond=self.use_zd_cond,
+                zd_cond_dim=zd_cond_dim,
+                zd_cond_only=self.zd_cond_only,
             )
         elif self.model_name in [
                 ModelName.beatgans_autoenc,
@@ -418,6 +438,9 @@ class TrainConfig(BaseConfig):
                 net_beatgans_resnet_use_zero_module,
                 latent_net_conf=latent_net_conf,
                 resnet_cond_channels=self.net_beatgans_resnet_cond_channels,
+                use_zd_cond=self.use_zd_cond,
+                zd_cond_dim=zd_cond_dim,
+                zd_cond_only=self.zd_cond_only,
             )
         else:
             raise NotImplementedError(self.model_name)

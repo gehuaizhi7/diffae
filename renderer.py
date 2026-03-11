@@ -14,7 +14,7 @@ def render_uncondition(conf: TrainConfig,
     device = x_T.device
     if conf.train_mode == TrainMode.diffusion:
         assert conf.model_type.can_sample()
-        return sampler.sample(model=model, noise=x_T)
+        return sampler.sample(model=model, noise=x_T, eta=conf.ddim_eta)
     elif conf.train_mode.is_latent_diffusion():
         model: BeatGANsAutoencModel
         if conf.train_mode == TrainMode.latent_diffusion:
@@ -29,13 +29,17 @@ def render_uncondition(conf: TrainConfig,
             model=model.latent_net,
             noise=latent_noise,
             clip_denoised=conf.latent_clip_sample,
+            eta=conf.ddim_eta,
         )
 
         if conf.latent_znormalize:
             cond = cond * conds_std.to(device) + conds_mean.to(device)
 
         # the diffusion on the model
-        return sampler.sample(model=model, noise=x_T, cond=cond)
+        return sampler.sample(model=model,
+                              noise=x_T,
+                              cond=cond,
+                              eta=conf.ddim_eta)
     else:
         raise NotImplementedError()
 
@@ -55,6 +59,7 @@ def render_condition(
             cond = model.encode(x_start)
         return sampler.sample(model=model,
                               noise=x_T,
-                              model_kwargs={'cond': cond})
+                              model_kwargs={'cond': cond},
+                              eta=conf.ddim_eta)
     else:
         raise NotImplementedError()

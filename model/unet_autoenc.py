@@ -124,6 +124,7 @@ class BeatGANsAutoencModel(BeatGANsUNetModel):
                 y=None,
                 x_start=None,
                 cond=None,
+                z_d=None,
                 style=None,
                 noise=None,
                 t_cond=None,
@@ -140,16 +141,21 @@ class BeatGANsAutoencModel(BeatGANsUNetModel):
         if t_cond is None:
             t_cond = t
 
-        if noise is not None:
-            # if the noise is given, we predict the cond from noise
-            cond = self.noise_to_cond(noise)
+        use_internal_cond = not (self.conf.use_zd_cond and self.conf.zd_cond_only)
+        if use_internal_cond:
+            if noise is not None:
+                # if the noise is given, we predict the cond from noise
+                cond = self.noise_to_cond(noise)
 
-        if cond is None:
-            if x is not None:
-                assert len(x) == len(x_start), f'{len(x)} != {len(x_start)}'
+            if cond is None:
+                if x is not None:
+                    assert len(x) == len(x_start), f'{len(x)} != {len(x_start)}'
 
-            tmp = self.encode(x_start)
-            cond = tmp['cond']
+                tmp = self.encode(x_start)
+                cond = tmp['cond']
+        else:
+            # exact z_d-conditioning mode: disable the original autoencoder cond stream.
+            cond = None
 
         if t is not None:
             _t_emb = timestep_embedding(t, self.conf.model_channels)
@@ -176,6 +182,11 @@ class BeatGANsAutoencModel(BeatGANsUNetModel):
             # one cond = combined of both time and cond
             emb = res.emb
             cond_emb = None
+
+        if self.conf.use_zd_cond and z_d is not None:
+            zd_emb = self.zd_embed(z_d)
+        else:
+            zd_emb = None
 
         # override the style if given
         style = style or res.style
@@ -210,7 +221,8 @@ class BeatGANsAutoencModel(BeatGANsUNetModel):
                 for j in range(self.input_num_blocks[i]):
                     h = self.input_blocks[k](h,
                                              emb=enc_time_emb,
-                                             cond=enc_cond_emb)
+                                             cond=enc_cond_emb,
+                                             zd=zd_emb)
 
                     # print(i, j, h.shape)
                     hs[i].append(h)
@@ -218,7 +230,10 @@ class BeatGANsAutoencModel(BeatGANsUNetModel):
             assert k == len(self.input_blocks)
 
             # middle blocks
-            h = self.middle_block(h, emb=mid_time_emb, cond=mid_cond_emb)
+            h = self.middle_block(h,
+                                  emb=mid_time_emb,
+                                  cond=mid_cond_emb,
+                                  zd=zd_emb)
         else:
             # no lateral connections
             # happens when training only the autonecoder
@@ -241,6 +256,7 @@ class BeatGANsAutoencModel(BeatGANsUNetModel):
                 h = self.output_blocks[k](h,
                                           emb=dec_time_emb,
                                           cond=dec_cond_emb,
+                                          zd=zd_emb,
                                           lateral=lateral)
                 k += 1
 

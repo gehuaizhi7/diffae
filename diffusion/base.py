@@ -186,7 +186,8 @@ class GaussianDiffusionBeatGans:
                x_start=None,
                clip_denoised=True,
                model_kwargs=None,
-               progress=False):
+               progress=False,
+               eta=0.0):
         """
         Args:
             x_start: given for the autoencoder
@@ -210,7 +211,8 @@ class GaussianDiffusionBeatGans:
                                          noise=noise,
                                          clip_denoised=clip_denoised,
                                          model_kwargs=model_kwargs,
-                                         progress=progress)
+                                         progress=progress,
+                                         eta=eta)
         else:
             raise NotImplementedError()
 

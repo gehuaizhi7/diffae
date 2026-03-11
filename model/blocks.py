@@ -22,7 +22,7 @@ class TimestepBlock(nn.Module):
     Any module where forward() takes timestep embeddings as a second argument.
     """
     @abstractmethod
-    def forward(self, x, emb=None, cond=None, lateral=None):
+    def forward(self, x, emb=None, cond=None, zd=None, lateral=None):
         """
         Apply the module to `x` given `emb` timestep embeddings.
         """
@@ -33,10 +33,10 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
     A sequential module that passes timestep embeddings to the children that
     support it as an extra input.
     """
-    def forward(self, x, emb=None, cond=None, lateral=None):
+    def forward(self, x, emb=None, cond=None, zd=None, lateral=None):
         for layer in self:
             if isinstance(layer, TimestepBlock):
-                x = layer(x, emb=emb, cond=cond, lateral=lateral)
+                x = layer(x, emb=emb, cond=cond, zd=zd, lateral=lateral)
             else:
                 x = layer(x)
         return x
@@ -62,6 +62,9 @@ class ResBlockConfig(BaseConfig):
     two_cond: bool = False
     # number of encoders' output channels
     cond_emb_channels: int = None
+    # optional external z_d conditioning channels
+    use_zd_cond: bool = False
+    zd_emb_channels: int = None
     # suggest: False
     has_lateral: bool = False
     lateral_channels: int = None
@@ -72,6 +75,7 @@ class ResBlockConfig(BaseConfig):
     def __post_init__(self):
         self.out_channels = self.out_channels or self.channels
         self.cond_emb_channels = self.cond_emb_channels or self.emb_channels
+        self.zd_emb_channels = self.zd_emb_channels or self.emb_channels
 
     def make_model(self):
         return ResBlock(self)
@@ -133,6 +137,13 @@ class ResBlock(TimestepBlock):
                     nn.SiLU(),
                     linear(conf.cond_emb_channels, conf.out_channels),
                 )
+
+            if conf.use_zd_cond:
+                # z_d uses AdaGN-style scale+shift, parallel to time/style conds.
+                self.zd_emb_layers = nn.Sequential(
+                    nn.SiLU(),
+                    linear(conf.zd_emb_channels, 2 * conf.out_channels),
+                )
             #############################
             # OUT LAYERS (ignored when there is no condition)
             #############################
@@ -182,7 +193,7 @@ class ResBlock(TimestepBlock):
                                            kernel_size,
                                            padding=padding)
 
-    def forward(self, x, emb=None, cond=None, lateral=None):
+    def forward(self, x, emb=None, cond=None, zd=None, lateral=None):
         """
         Apply the block to a Tensor, conditioned on a timestep embedding.
 
@@ -190,7 +201,7 @@ class ResBlock(TimestepBlock):
             x: input
             lateral: lateral connection from the encoder
         """
-        return torch_checkpoint(self._forward, (x, emb, cond, lateral),
+        return torch_checkpoint(self._forward, (x, emb, cond, zd, lateral),
                                 self.conf.use_checkpoint)
 
     def _forward(
@@ -198,6 +209,7 @@ class ResBlock(TimestepBlock):
         x,
         emb=None,
         cond=None,
+        zd=None,
         lateral=None,
     ):
         """
@@ -243,11 +255,20 @@ class ResBlock(TimestepBlock):
             else:
                 cond_out = None
 
+            if self.conf.use_zd_cond and zd is not None:
+                zd_out = self.zd_emb_layers(zd).type(h.dtype)
+                while len(zd_out.shape) < len(h.shape):
+                    zd_out = zd_out[..., None]
+                extra_conds = [zd_out]
+            else:
+                extra_conds = None
+
             # this is the new refactored code
             h = apply_conditions(
                 h=h,
                 emb=emb_out,
                 cond=cond_out,
+                extra_conds=extra_conds,
                 layers=self.out_layers,
                 scale_bias=1,
                 in_channels=self.conf.out_channels,
@@ -261,6 +282,7 @@ def apply_conditions(
     h,
     emb=None,
     cond=None,
+    extra_conds=None,
     layers: nn.Sequential = None,
     scale_bias: float = 1,
     in_channels: int = 512,
@@ -273,22 +295,21 @@ def apply_conditions(
         emb: time conditional (ready to scale + shift)
         cond: encoder's conditional (read to scale + shift)
     """
-    two_cond = emb is not None and cond is not None
+    if extra_conds is None:
+        extra_conds = []
 
+    cond_tensors = []
     if emb is not None:
-        # adjusting shapes
-        while len(emb.shape) < len(h.shape):
-            emb = emb[..., None]
+        cond_tensors.append(emb)
+    if cond is not None:
+        cond_tensors.append(cond)
+    cond_tensors.extend([c for c in extra_conds if c is not None])
 
-    if two_cond:
-        # adjusting shapes
-        while len(cond.shape) < len(h.shape):
-            cond = cond[..., None]
-        # time first
-        scale_shifts = [emb, cond]
-    else:
-        # "cond" is not used with single cond mode
-        scale_shifts = [emb]
+    scale_shifts = []
+    for each in cond_tensors:
+        while len(each.shape) < len(h.shape):
+            each = each[..., None]
+        scale_shifts.append(each)
 
     # support scale, shift or shift only
     for i, each in enumerate(scale_shifts):

@@ -197,3 +197,37 @@ This experiment can be run on 2080Ti's.
 # diffae
 python run_celeba64.py
 ```
+
+### z_d Sparse Conditioning (Encoder + ISTA + Dictionary)
+
+Use `run_zd_cond.py` to enable the external sparse-conditioned latent `z_d` path.
+By default, this runs in exact `z_d`-only conditioning mode (`--disable_zd_cond_only` turns that off).
+
+Example training command:
+
+```
+python run_zd_cond.py \
+  --template ffhq128_autoenc_130M \
+  --gpus 0,1,2,3 \
+  --use_zd_cond \
+  --m 512 \
+  --k 1024 \
+  --lambda_l1 0.1 \
+  --ista_steps 8 \
+  --gamma_align 0.1 \
+  --beta_align 0.1 \
+  --lr_D 0.001 \
+  --lr_E 0.0001 \
+  --lr_eps 0.0001 \
+  --ddim_eta 0.0
+```
+
+Additional logged z_d metrics:
+- `loss/L_diff`
+- `loss/L_feat`
+- `loss/L_align_sg_ze_to_zd`, `loss/L_align_sg_zd_to_ze`
+- `zd/sparsity_nnz_over_k`
+- `zd/ista_objective_drop`
+- `zd/max_offdiag_dt_d`
+- `zd/dead_atom_fraction`
+- `zd/z_e_norm_mean`, `zd/z_e_norm_std`

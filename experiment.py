@@ -22,6 +22,9 @@ from dataset import *
 from dist_utils import *
 from lmdb_writer import *
 from metrics import *
+from model.dictionary import SparseDictionary
+from model.encoder import EncoderAdapter
+from model.ista import ista
 from renderer import *
 
 
@@ -81,6 +84,29 @@ class LitModel(pl.LightningModule):
         else:
             self.conds_mean = None
             self.conds_std = None
+
+        if conf.use_zd_cond:
+            if conf.train_mode != TrainMode.diffusion:
+                raise ValueError(
+                    'z_d conditioning is implemented for TrainMode.diffusion only.'
+                )
+            if not hasattr(self.model, 'encoder'):
+                raise ValueError(
+                    'z_d conditioning requires a model with an encoder (autoencoder model).'
+                )
+            enc_dim = getattr(self.model.conf, 'enc_out_channels', self.conf.style_ch)
+            if self.conf.m is not None and self.conf.m != enc_dim:
+                raise ValueError(
+                    f'Configured m={self.conf.m} does not match encoder dim={enc_dim}.'
+                )
+            self.conf.m = enc_dim
+            self.zd_encoder = EncoderAdapter(self.model)
+            self.zd_dictionary = SparseDictionary(self.conf.m, self.conf.k)
+            self.conf.lr_E = self.conf.lr if self.conf.lr_E is None else self.conf.lr_E
+            self.conf.lr_eps = self.conf.lr if self.conf.lr_eps is None else self.conf.lr_eps
+        else:
+            self.zd_encoder = None
+            self.zd_dictionary = None
 
     def normalize(self, cond):
         cond = (cond - self.conds_mean.to(self.device)) / self.conds_std.to(
@@ -154,6 +180,83 @@ class LitModel(pl.LightningModule):
                                                model_kwargs={'cond': cond})
         return out['sample']
 
+    def _compute_zd_latents(self, x_start):
+        """
+        Compute z_e, z*, z_d with a fully differentiable sparse-coding path.
+        """
+        assert self.zd_encoder is not None
+        assert self.zd_dictionary is not None
+        z_e = self.zd_encoder(x_start)
+        ista_out = ista(
+            z_e=z_e,
+            atoms=self.zd_dictionary.atoms,
+            lambda_l1=self.conf.lambda_l1,
+            steps=self.conf.ista_steps,
+            return_history=True,
+        )
+        z_star = ista_out.code
+        z_d = self.zd_dictionary.decode(z_star)
+        return {
+            'z_e': z_e,
+            'z_star': z_star,
+            'z_d': z_d,
+            'ista_objectives': ista_out.objectives,
+        }
+
+    @torch.no_grad()
+    def _grad_l2_norm(self, params):
+        total = None
+        for p in params:
+            if p.grad is None:
+                continue
+            g2 = p.grad.detach().float().pow(2).sum()
+            total = g2 if total is None else total + g2
+        if total is None:
+            return torch.tensor(0.0, device=self.device)
+        return total.sqrt()
+
+    @torch.no_grad()
+    def _log_zd_grad_norms(self):
+        if not (self.conf.use_zd_cond
+                and self.conf.train_mode == TrainMode.diffusion):
+            return
+        if not hasattr(self.model, 'encoder'):
+            return
+
+        enc_params = [p for p in self.model.encoder.parameters() if p.requires_grad]
+        enc_param_ids = set(id(p) for p in enc_params)
+        eps_params = [
+            p for p in self.model.parameters()
+            if p.requires_grad and id(p) not in enc_param_ids
+        ]
+        d_params = []
+        if self.zd_dictionary is not None:
+            d_params = [p for p in self.zd_dictionary.parameters() if p.requires_grad]
+
+        grad_metrics = {
+            'theta_E': self._grad_l2_norm(enc_params),
+            'theta_epsilon': self._grad_l2_norm(eps_params),
+            'D': self._grad_l2_norm(d_params),
+        }
+        gathered = {
+            key: self.all_gather(val).mean()
+            for key, val in grad_metrics.items()
+        }
+        if self.global_rank == 0:
+            for key, val in gathered.items():
+                self.logger.experiment.add_scalar(f'grad_norm/{key}', val,
+                                                  self.num_samples)
+
+    @torch.no_grad()
+    def _update_dictionary(self, z_e_detached, z_star_detached):
+        if self.zd_dictionary is None or self.conf.lr_D <= 0:
+            return torch.tensor(0.0, device=self.device)
+        return self.zd_dictionary.bcd_update(
+            z_e=z_e_detached,
+            code=z_star_detached,
+            lr=self.conf.lr_D,
+        )
+
     def forward(self, noise=None, x_start=None, ema_model: bool = False):
         with amp.autocast(False):
             if ema_model:
@@ -162,7 +265,8 @@ class LitModel(pl.LightningModule):
                 model = self.model
             gen = self.eval_sampler.sample(model=model,
                                            noise=noise,
-                                           x_start=x_start)
+                                           x_start=x_start,
+                                           eta=self.conf.ddim_eta)
             return gen
 
     def setup(self, stage=None) -> None:
@@ -355,6 +459,7 @@ class LitModel(pl.LightningModule):
         with amp.autocast(False):
             # batch size here is local!
             # forward
+            metrics = {}
             if self.conf.train_mode.require_dataset_infer():
                 # this mode as pre-calculated cond
                 cond = batch[0]
@@ -372,9 +477,83 @@ class LitModel(pl.LightningModule):
                 """
                 # with numpy seed we have the problem that the sample t's are related!
                 t, weight = self.T_sampler.sample(len(x_start), x_start.device)
-                losses = self.sampler.training_losses(model=self.model,
-                                                      x_start=x_start,
-                                                      t=t)
+                model_kwargs = {}
+                diffusion_noise = None
+
+                if self.conf.use_zd_cond:
+                    zd_pack = self._compute_zd_latents(x_start)
+                    z_e = zd_pack['z_e']
+                    z_star = zd_pack['z_star']
+                    z_d = zd_pack['z_d']
+                    ista_objectives = zd_pack['ista_objectives']
+                    model_kwargs['z_d'] = z_d
+                    # Explicit noise sample for diffusion loss.
+                    diffusion_noise = torch.randn_like(x_start)
+
+                losses = self.sampler.training_losses(
+                    model=self.model,
+                    x_start=x_start,
+                    t=t,
+                    model_kwargs=model_kwargs,
+                    noise=diffusion_noise,
+                )
+                l_diff = losses['loss'].mean()
+                loss = l_diff
+                metrics['L_diff'] = l_diff.detach()
+
+                if self.conf.use_zd_cond:
+                    # L = L_diff + gamma*||z_e-z_d||^2 + beta*||z_d-z_e||^2
+                    l_align_zd = torch.mean((z_e - z_d)**2)
+                    l_align_ze = torch.mean((z_d - z_e)**2)
+                    l_align = (self.conf.gamma_align * l_align_zd +
+                               self.conf.beta_align * l_align_ze)
+                    loss = loss + l_align
+
+                    with torch.no_grad():
+                        # shuffled z_d ablation: compare with same t/noise for fair delta
+                        if z_d.shape[0] > 1:
+                            shift = torch.randint(1,
+                                                  z_d.shape[0], (1, ),
+                                                  device=z_d.device).item()
+                            z_d_shuffle = z_d.roll(shifts=shift, dims=0)
+                        else:
+                            z_d_shuffle = torch.randn_like(z_d)
+
+                        losses_shuf = self.sampler.training_losses(
+                            model=self.model,
+                            x_start=x_start,
+                            t=t,
+                            model_kwargs={'z_d': z_d_shuffle},
+                            noise=diffusion_noise,
+                        )
+                        l_diff_shuf = losses_shuf['loss'].mean()
+                        delta_cond = l_diff_shuf - l_diff.detach()
+
+                        ista_drop = (ista_objectives[:, 0] -
+                                     ista_objectives[:, -1]).mean()
+                        nnz_over_k = ((z_star.abs() > 1e-6).float().sum(dim=1) /
+                                      float(self.conf.k)).mean()
+                        nnz_percent = ((z_star.abs() <= 1e-6).float().mean() *
+                                       100.0)
+                        dead_atom_fraction = SparseDictionary.dead_atom_fraction(
+                            z_star)
+                        max_offdiag = self.zd_dictionary.max_offdiag()
+                        z_norm = z_e.norm(dim=1)
+
+                    metrics['L_align'] = l_align.detach()
+                    metrics['L_align_sg_ze_to_zd'] = l_align_zd.detach()
+                    metrics['L_align_sg_zd_to_ze'] = l_align_ze.detach()
+                    metrics['delta_cond'] = delta_cond
+                    metrics['delta-cond'] = delta_cond
+                    metrics['L_feat'] = torch.mean((z_e - z_d)**2).detach()
+                    metrics['sparsity_nnz_over_k'] = nnz_over_k
+                    metrics['nnz_percent'] = nnz_percent
+                    metrics['nnz%'] = nnz_percent
+                    metrics['ista_objective_drop'] = ista_drop
+                    metrics['max_offdiag_dt_d'] = max_offdiag
+                    metrics['dead_atom_fraction'] = dead_atom_fraction
+                    metrics['z_e_norm_mean'] = z_norm.mean()
+                    metrics['z_e_norm_std'] = z_norm.std(unbiased=False)
             elif self.conf.train_mode.is_latent_diffusion():
                 """
                 training the latent variables!
@@ -384,26 +563,47 @@ class LitModel(pl.LightningModule):
                 latent_losses = self.latent_sampler.training_losses(
                     model=self.model.latent_net, x_start=cond, t=t)
                 # train only do the latent diffusion
-                losses = {
-                    'latent': latent_losses['loss'],
-                    'loss': latent_losses['loss']
-                }
+                loss = latent_losses['loss'].mean()
+                metrics['latent'] = loss.detach()
             else:
                 raise NotImplementedError()
 
-            loss = losses['loss'].mean()
-            # divide by accum batches to make the accumulated gradient exact!
-            for key in ['loss', 'vae', 'latent', 'mmd', 'chamfer', 'arg_cnt']:
-                if key in losses:
-                    losses[key] = self.all_gather(losses[key]).mean()
+            metrics['loss'] = loss.detach()
+            gathered = {}
+            for key, val in metrics.items():
+                if not torch.is_tensor(val):
+                    val = torch.tensor(val, device=self.device)
+                gathered[key] = self.all_gather(val).mean()
 
             if self.global_rank == 0:
-                self.logger.experiment.add_scalar('loss', losses['loss'],
+                self.logger.experiment.add_scalar('loss', gathered['loss'],
                                                   self.num_samples)
-                for key in ['vae', 'latent', 'mmd', 'chamfer', 'arg_cnt']:
-                    if key in losses:
+                for key in [
+                        'L_diff',
+                        'L_align',
+                        'delta_cond',
+                        'delta-cond',
+                        'L_feat',
+                        'L_align_sg_ze_to_zd',
+                        'L_align_sg_zd_to_ze',
+                        'latent',
+                ]:
+                    if key in gathered:
                         self.logger.experiment.add_scalar(
-                            f'loss/{key}', losses[key], self.num_samples)
+                            f'loss/{key}', gathered[key], self.num_samples)
+                for key in [
+                        'nnz_percent',
+                        'nnz%',
+                        'sparsity_nnz_over_k',
+                        'ista_objective_drop',
+                        'max_offdiag_dt_d',
+                        'dead_atom_fraction',
+                        'z_e_norm_mean',
+                        'z_e_norm_std',
+                ]:
+                    if key in gathered:
+                        self.logger.experiment.add_scalar(
+                            f'zd/{key}', gathered[key], self.num_samples)
 
         return {'loss': loss}
 
@@ -432,6 +632,7 @@ class LitModel(pl.LightningModule):
 
     def on_before_optimizer_step(self, optimizer: Optimizer,
                                  optimizer_idx: int) -> None:
+        self._log_zd_grad_norms()
         # fix the fp16 + clip grad norm problem with pytorch lightinng
         # this is the currently correct way to do it
         if self.conf.grad_clip > 0:
@@ -499,7 +700,8 @@ class LitModel(pl.LightningModule):
                         gen = self.eval_sampler.sample(model=model,
                                                        noise=x_T,
                                                        cond=cond,
-                                                       x_start=_xstart)
+                                                       x_start=_xstart,
+                                                       eta=self.conf.ddim_eta)
                     Gen.append(gen)
 
                 gen = torch.cat(Gen)
@@ -632,13 +834,45 @@ class LitModel(pl.LightningModule):
 
     def configure_optimizers(self):
         out = {}
+        params = self.model.parameters()
+        lr_default = self.conf.lr
+        if self.conf.use_zd_cond and self.conf.train_mode == TrainMode.diffusion:
+            if not hasattr(self.model, 'encoder'):
+                raise RuntimeError(
+                    'use_zd_cond requires encoder parameters for separate lr_E/lr_eps.'
+                )
+            enc_params = [
+                p for p in self.model.encoder.parameters() if p.requires_grad
+            ]
+            enc_param_ids = set(id(p) for p in enc_params)
+            eps_params = [
+                p for p in self.model.parameters()
+                if p.requires_grad and id(p) not in enc_param_ids
+            ]
+            params = [
+                {
+                    'params': eps_params,
+                    'lr': self.conf.lr_eps,
+                },
+                {
+                    'params': enc_params,
+                    'lr': self.conf.lr_E,
+                },
+            ]
+            if self.zd_dictionary is not None:
+                params.append({
+                    'params': self.zd_dictionary.parameters(),
+                    'lr': self.conf.lr_D,
+                })
+            lr_default = self.conf.lr_eps
+
         if self.conf.optimizer == OptimizerType.adam:
-            optim = torch.optim.Adam(self.model.parameters(),
-                                     lr=self.conf.lr,
+            optim = torch.optim.Adam(params,
+                                     lr=lr_default,
                                      weight_decay=self.conf.weight_decay)
         elif self.conf.optimizer == OptimizerType.adamw:
-            optim = torch.optim.AdamW(self.model.parameters(),
-                                      lr=self.conf.lr,
+            optim = torch.optim.AdamW(params,
+                                      lr=lr_default,
                                       weight_decay=self.conf.weight_decay)
         else:
             raise NotImplementedError()
