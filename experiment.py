@@ -7,8 +7,8 @@ import numpy as np
 import pandas as pd
 import pytorch_lightning as pl
 import torch
+from PIL import Image
 from numpy.lib.function_base import flip
-from pytorch_lightning import loggers as pl_loggers
 from pytorch_lightning.callbacks import *
 from torch import nn
 from torch.cuda import amp
@@ -26,6 +26,14 @@ from model.dictionary import SparseDictionary
 from model.encoder import EncoderAdapter
 from model.ista import ista
 from renderer import *
+from checkpoint_utils import prune_old_checkpoints
+
+# Compatibility for older Pillow versions used in this environment.
+if not hasattr(Image, 'Resampling'):
+    class _Resampling:
+        LANCZOS = Image.LANCZOS
+
+    Image.Resampling = _Resampling
 
 
 class LitModel(pl.LightningModule):
@@ -107,6 +115,58 @@ class LitModel(pl.LightningModule):
         else:
             self.zd_encoder = None
             self.zd_dictionary = None
+
+    def _iter_experiments(self):
+        if self.logger is None:
+            return []
+        logger_obj = self.logger
+        if hasattr(logger_obj, 'loggers'):
+            exps = []
+            for each_logger in logger_obj.loggers:
+                exp = getattr(each_logger, 'experiment', None)
+                if exp is not None:
+                    exps.append(exp)
+            return exps
+        exp = getattr(logger_obj, 'experiment', None)
+        if exp is None:
+            return []
+        if isinstance(exp, (list, tuple)):
+            return [e for e in exp if e is not None]
+        return [exp]
+
+    def _log_scalar_all(self, name, val, step):
+        if self.global_rank != 0:
+            return
+        if torch.is_tensor(val):
+            val = val.detach().float().cpu().item()
+        for exp in self._iter_experiments():
+            if hasattr(exp, 'add_scalar'):
+                exp.add_scalar(name, val, step)
+            elif hasattr(exp, 'log'):
+                # WandbLogger configures metrics to use `trainer/global_step` as
+                # x-axis. Include it explicitly and avoid `step=` to prevent
+                # cross-logger step desync.
+                exp.log({
+                    name: val,
+                    'trainer/global_step': step,
+                })
+
+    def _log_image_all(self, name, image, step):
+        if self.global_rank != 0:
+            return
+        image = image.detach().cpu()
+        for exp in self._iter_experiments():
+            if hasattr(exp, 'add_image'):
+                exp.add_image(name, image, step)
+            elif hasattr(exp, 'log'):
+                try:
+                    import wandb
+                except ImportError:
+                    continue
+                exp.log({
+                    name: wandb.Image(image),
+                    'trainer/global_step': step,
+                })
 
     def normalize(self, cond):
         cond = (cond - self.conds_mean.to(self.device)) / self.conds_std.to(
@@ -242,10 +302,8 @@ class LitModel(pl.LightningModule):
             key: self.all_gather(val).mean()
             for key, val in grad_metrics.items()
         }
-        if self.global_rank == 0:
-            for key, val in gathered.items():
-                self.logger.experiment.add_scalar(f'grad_norm/{key}', val,
-                                                  self.num_samples)
+        for key, val in gathered.items():
+            self._log_scalar_all(f'grad_norm/{key}', val, self.num_samples)
 
     @torch.no_grad()
     def _update_dictionary(self, z_e_detached, z_star_detached):
@@ -527,33 +585,37 @@ class LitModel(pl.LightningModule):
                             noise=diffusion_noise,
                         )
                         l_diff_shuf = losses_shuf['loss'].mean()
-                        delta_cond = l_diff_shuf - l_diff.detach()
+                        z_d_shuffle_gap = l_diff_shuf - l_diff.detach()
 
                         ista_drop = (ista_objectives[:, 0] -
                                      ista_objectives[:, -1]).mean()
-                        nnz_over_k = ((z_star.abs() > 1e-6).float().sum(dim=1) /
-                                      float(self.conf.k)).mean()
-                        nnz_percent = ((z_star.abs() <= 1e-6).float().mean() *
-                                       100.0)
+                        code_active_fraction = (
+                            (z_star.abs() > 1e-6).float().sum(dim=1) /
+                            float(self.conf.k)).mean()
+                        code_zero_percent = (
+                            (z_star.abs() <= 1e-6).float().mean() * 100.0)
                         dead_atom_fraction = SparseDictionary.dead_atom_fraction(
                             z_star)
-                        max_offdiag = self.zd_dictionary.max_offdiag()
-                        z_norm = z_e.norm(dim=1)
+                        dictionary_max_offdiag = self.zd_dictionary.max_offdiag()
+                        z_d_mean = z_d.mean()
+                        z_d_std = z_d.std(unbiased=False)
+                        z_d_l2_norm = z_d.norm(dim=1)
+                        z_e_l2_norm = z_e.norm(dim=1)
 
-                    metrics['L_align'] = l_align.detach()
-                    metrics['L_align_sg_ze_to_zd'] = l_align_zd.detach()
-                    metrics['L_align_sg_zd_to_ze'] = l_align_ze.detach()
-                    metrics['delta_cond'] = delta_cond
-                    metrics['delta-cond'] = delta_cond
-                    metrics['L_feat'] = torch.mean((z_e - z_d)**2).detach()
-                    metrics['sparsity_nnz_over_k'] = nnz_over_k
-                    metrics['nnz_percent'] = nnz_percent
-                    metrics['nnz%'] = nnz_percent
+                    metrics['alignment_loss'] = l_align.detach()
+                    metrics['z_d_shuffle_gap'] = z_d_shuffle_gap
+                    metrics['z_e_z_d_mse'] = l_align_zd.detach()
+                    metrics['code_active_fraction'] = code_active_fraction
+                    metrics['code_zero_percent'] = code_zero_percent
                     metrics['ista_objective_drop'] = ista_drop
-                    metrics['max_offdiag_dt_d'] = max_offdiag
+                    metrics['dictionary_max_offdiag'] = dictionary_max_offdiag
                     metrics['dead_atom_fraction'] = dead_atom_fraction
-                    metrics['z_e_norm_mean'] = z_norm.mean()
-                    metrics['z_e_norm_std'] = z_norm.std(unbiased=False)
+                    metrics['z_d_mean'] = z_d_mean
+                    metrics['z_d_std'] = z_d_std
+                    metrics['z_d_l2_norm_mean'] = z_d_l2_norm.mean()
+                    metrics['z_d_l2_norm_std'] = z_d_l2_norm.std(unbiased=False)
+                    metrics['z_e_l2_norm_mean'] = z_e_l2_norm.mean()
+                    metrics['z_e_l2_norm_std'] = z_e_l2_norm.std(unbiased=False)
             elif self.conf.train_mode.is_latent_diffusion():
                 """
                 training the latent variables!
@@ -575,35 +637,33 @@ class LitModel(pl.LightningModule):
                     val = torch.tensor(val, device=self.device)
                 gathered[key] = self.all_gather(val).mean()
 
-            if self.global_rank == 0:
-                self.logger.experiment.add_scalar('loss', gathered['loss'],
-                                                  self.num_samples)
-                for key in [
-                        'L_diff',
-                        'L_align',
-                        'delta_cond',
-                        'delta-cond',
-                        'L_feat',
-                        'L_align_sg_ze_to_zd',
-                        'L_align_sg_zd_to_ze',
-                        'latent',
-                ]:
-                    if key in gathered:
-                        self.logger.experiment.add_scalar(
-                            f'loss/{key}', gathered[key], self.num_samples)
-                for key in [
-                        'nnz_percent',
-                        'nnz%',
-                        'sparsity_nnz_over_k',
-                        'ista_objective_drop',
-                        'max_offdiag_dt_d',
-                        'dead_atom_fraction',
-                        'z_e_norm_mean',
-                        'z_e_norm_std',
-                ]:
-                    if key in gathered:
-                        self.logger.experiment.add_scalar(
-                            f'zd/{key}', gathered[key], self.num_samples)
+            self._log_scalar_all('loss', gathered['loss'], self.num_samples)
+            for key in [
+                    'L_diff',
+                    'alignment_loss',
+                    'z_d_shuffle_gap',
+                    'z_e_z_d_mse',
+                    'latent',
+            ]:
+                if key in gathered:
+                    self._log_scalar_all(f'loss/{key}', gathered[key],
+                                         self.num_samples)
+            for key in [
+                    'code_zero_percent',
+                    'code_active_fraction',
+                    'ista_objective_drop',
+                    'dictionary_max_offdiag',
+                    'dead_atom_fraction',
+                    'z_d_mean',
+                    'z_d_std',
+                    'z_d_l2_norm_mean',
+                    'z_d_l2_norm_std',
+                    'z_e_l2_norm_mean',
+                    'z_e_l2_norm_std',
+            ]:
+                if key in gathered:
+                    self._log_scalar_all(f'zd/{key}', gathered[key],
+                                         self.num_samples)
 
         return {'loss': loss}
 
@@ -649,11 +709,18 @@ class LitModel(pl.LightningModule):
         """
         put images to the tensorboard
         """
+        recon_every = self.conf.recon_every_samples
+        if recon_every is None:
+            if self.conf.sample_every_samples > 0:
+                recon_every = max(self.conf.batch_size_effective,
+                                  self.conf.sample_every_samples // 4)
+            else:
+                recon_every = 0
+
         def do(model,
-               postfix,
+               name,
                use_xstart,
                save_real=False,
-               no_latent_diff=False,
                interpolate=False):
             model.eval()
             with torch.no_grad():
@@ -718,59 +785,61 @@ class LitModel(pl.LightningModule):
 
                     if self.global_rank == 0:
                         grid_real = (make_grid(real) + 1) / 2
-                        self.logger.experiment.add_image(
-                            f'sample{postfix}/real', grid_real,
-                            self.num_samples)
+                        self._log_image_all(f'{name}/real', grid_real,
+                                            self.num_samples)
 
                 if self.global_rank == 0:
                     # save samples to the tensorboard
                     grid = (make_grid(gen) + 1) / 2
-                    sample_dir = os.path.join(self.conf.logdir,
-                                              f'sample{postfix}')
+                    sample_dir = os.path.join(self.conf.logdir, name)
                     if not os.path.exists(sample_dir):
                         os.makedirs(sample_dir)
                     path = os.path.join(sample_dir,
                                         '%d.png' % self.num_samples)
                     save_image(grid, path)
-                    self.logger.experiment.add_image(f'sample{postfix}', grid,
-                                                     self.num_samples)
+                    self._log_image_all(name, grid, self.num_samples)
             model.train()
 
-        if self.conf.sample_every_samples > 0 and is_time(
-                self.num_samples, self.conf.sample_every_samples,
-                self.conf.batch_size_effective):
+        should_log_samples = self.conf.sample_every_samples > 0 and is_time(
+            self.num_samples, self.conf.sample_every_samples,
+            self.conf.batch_size_effective)
+        should_log_recons = recon_every > 0 and is_time(
+            self.num_samples, recon_every, self.conf.batch_size_effective)
 
-            if self.conf.train_mode.require_dataset_infer():
-                do(self.model, '', use_xstart=False)
-                do(self.ema_model, '_ema', use_xstart=False)
-            else:
-                if self.conf.model_type.has_autoenc(
-                ) and self.conf.model_type.can_sample():
-                    do(self.model, '', use_xstart=False)
-                    do(self.ema_model, '_ema', use_xstart=False)
+        if self.conf.train_mode.require_dataset_infer():
+            if should_log_samples:
+                do(self.model, 'sample', use_xstart=False)
+                do(self.ema_model, 'sample_ema', use_xstart=False)
+        else:
+            if self.conf.model_type.has_autoenc(
+            ) and self.conf.model_type.can_sample():
+                if should_log_samples:
+                    do(self.model, 'sample', use_xstart=False)
+                    do(self.ema_model, 'sample_ema', use_xstart=False)
+                if should_log_recons:
                     # autoencoding mode
-                    do(self.model, '_enc', use_xstart=True, save_real=True)
+                    do(self.model, 'recon', use_xstart=True, save_real=True)
                     do(self.ema_model,
-                       '_enc_ema',
+                       'recon_ema',
                        use_xstart=True,
                        save_real=True)
-                elif self.conf.train_mode.use_latent_net():
-                    do(self.model, '', use_xstart=False)
-                    do(self.ema_model, '_ema', use_xstart=False)
+            elif self.conf.train_mode.use_latent_net():
+                if should_log_samples:
+                    do(self.model, 'sample', use_xstart=False)
+                    do(self.ema_model, 'sample_ema', use_xstart=False)
+                if should_log_recons:
                     # autoencoding mode
-                    do(self.model, '_enc', use_xstart=True, save_real=True)
-                    do(self.model,
-                       '_enc_nodiff',
-                       use_xstart=True,
-                       save_real=True,
-                       no_latent_diff=True)
+                    do(self.model, 'recon', use_xstart=True, save_real=True)
                     do(self.ema_model,
-                       '_enc_ema',
+                       'recon_ema',
                        use_xstart=True,
                        save_real=True)
-                else:
-                    do(self.model, '', use_xstart=True, save_real=True)
-                    do(self.ema_model, '_ema', use_xstart=True, save_real=True)
+            elif should_log_recons:
+                do(self.model, 'recon', use_xstart=True, save_real=True)
+                do(self.ema_model,
+                   'recon_ema',
+                   use_xstart=True,
+                   save_real=True)
 
     def evaluate_scores(self):
         """
@@ -789,8 +858,7 @@ class LitModel(pl.LightningModule):
                                  conds_mean=self.conds_mean,
                                  conds_std=self.conds_std)
             if self.global_rank == 0:
-                self.logger.experiment.add_scalar(f'FID{postfix}', score,
-                                                  self.num_samples)
+                self._log_scalar_all(f'FID{postfix}', score, self.num_samples)
                 if not os.path.exists(self.conf.logdir):
                     os.makedirs(self.conf.logdir)
                 with open(os.path.join(self.conf.logdir, 'eval.txt'),
@@ -814,8 +882,8 @@ class LitModel(pl.LightningModule):
 
                 if self.global_rank == 0:
                     for key, val in score.items():
-                        self.logger.experiment.add_scalar(
-                            f'{key}{postfix}', val, self.num_samples)
+                        self._log_scalar_all(f'{key}{postfix}', val,
+                                             self.num_samples)
 
         if self.conf.eval_every_samples > 0 and self.num_samples > 0 and is_time(
                 self.num_samples, self.conf.eval_every_samples,
@@ -1116,11 +1184,6 @@ def train(conf: TrainConfig, gpus, nodes=1, mode: str = 'train'):
 
     if not os.path.exists(conf.logdir):
         os.makedirs(conf.logdir)
-    checkpoint = ModelCheckpoint(dirpath=f'{conf.logdir}',
-                                 save_last=True,
-                                 save_top_k=1,
-                                 every_n_train_steps=conf.save_every_samples //
-                                 conf.batch_size_effective)
     checkpoint_path = f'{conf.logdir}/last.ckpt'
     print('ckpt path:', checkpoint_path)
     if os.path.exists(checkpoint_path):
@@ -1132,10 +1195,34 @@ def train(conf: TrainConfig, gpus, nodes=1, mode: str = 'train'):
             resume = conf.continue_from.path
         else:
             resume = None
+    removed_checkpoints = prune_old_checkpoints(conf.logdir,
+                                                keep_paths=[resume])
+    if removed_checkpoints:
+        print('removed stale checkpoints:', removed_checkpoints)
+    checkpoint = ModelCheckpoint(dirpath=f'{conf.logdir}',
+                                 save_last=True,
+                                 save_top_k=0,
+                                 every_n_train_steps=conf.save_every_samples //
+                                 conf.batch_size_effective)
 
-    tb_logger = pl_loggers.TensorBoardLogger(save_dir=conf.logdir,
-                                             name=None,
-                                             version='')
+    active_logger = False
+    if conf.use_wandb:
+        try:
+            from pytorch_lightning.loggers import WandbLogger
+        except ImportError as e:
+            raise ImportError(
+                'use_wandb=True requires wandb. Install with: pip install wandb'
+            ) from e
+        wb_logger = WandbLogger(
+            name=conf.wandb_name or conf.name,
+            project=conf.wandb_project,
+            entity=conf.wandb_entity,
+            save_dir=conf.logdir,
+            offline=(conf.wandb_mode == 'offline'),
+            tags=list(conf.wandb_tags) if conf.wandb_tags else None,
+            log_model=False,
+        )
+        active_logger = wb_logger
 
     # from pytorch_lightning.
 
@@ -1163,7 +1250,7 @@ def train(conf: TrainConfig, gpus, nodes=1, mode: str = 'train'):
         # clip in the model instead
         # gradient_clip_val=conf.grad_clip,
         replace_sampler_ddp=True,
-        logger=tb_logger,
+        logger=active_logger,
         accumulate_grad_batches=conf.accum_batches,
         plugins=plugins,
     )

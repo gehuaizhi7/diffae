@@ -160,6 +160,7 @@ class TrainConfig(BaseConfig):
     postfix: str = ''
     sample_size: int = 64
     sample_every_samples: int = 20_000
+    recon_every_samples: int = None
     save_every_samples: int = 100_000
     style_ch: int = 512
     T_eval: int = 1_000
@@ -173,6 +174,13 @@ class TrainConfig(BaseConfig):
     # if present load the checkpoint from this path instead
     eval_path: str = None
     base_dir: str = 'checkpoints'
+    use_wandb: bool = False
+    wandb_project: str = 'diffae'
+    wandb_entity: str = None
+    wandb_name: str = None
+    # 'online' or 'offline'
+    wandb_mode: str = 'online'
+    wandb_tags: Tuple[str] = None
     use_cache_dataset: bool = False
     data_cache_dir: str = os.path.expanduser('~/cache')
     work_cache_dir: str = os.path.expanduser('~/mycache')
@@ -187,6 +195,8 @@ class TrainConfig(BaseConfig):
         self.eval_ema_every_samples *= num_gpus * num_nodes
         self.eval_every_samples *= num_gpus * num_nodes
         self.sample_every_samples *= num_gpus * num_nodes
+        if self.recon_every_samples is not None:
+            self.recon_every_samples *= num_gpus * num_nodes
         self.batch_size *= num_gpus * num_nodes
         self.batch_size_eval *= num_gpus * num_nodes
         return self

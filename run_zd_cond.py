@@ -45,6 +45,55 @@ def parse_args():
     parser.add_argument('--lr_eps', type=float, default=None)
     parser.add_argument('--ddim_eta', type=float, default=None)
     parser.add_argument('--disable_zd_cond_only', action='store_true')
+    parser.add_argument('--batch_size',
+                        type=int,
+                        default=None,
+                        help='Per-process train batch size override.')
+    parser.add_argument('--total_samples',
+                        type=int,
+                        default=None,
+                        help='Total number of training samples to consume.')
+    parser.add_argument('--batch_size_eval',
+                        type=int,
+                        default=None,
+                        help='Per-process eval batch size override.')
+    parser.add_argument('--recon_every_samples',
+                        type=int,
+                        default=None,
+                        help='How often to log reconstruction grids.')
+    parser.add_argument('--accum_batches',
+                        type=int,
+                        default=None,
+                        help='Gradient accumulation steps.')
+    parser.add_argument('--num_workers',
+                        type=int,
+                        default=None,
+                        help='Dataloader workers override.')
+    parser.add_argument('--grad_checkpoint',
+                        action='store_true',
+                        help='Enable UNet gradient checkpointing.')
+    parser.add_argument('--enc_grad_checkpoint',
+                        action='store_true',
+                        help='Enable encoder gradient checkpointing.')
+    parser.add_argument('--use_wandb',
+                        action='store_true',
+                        help='Enable W&B logging in addition to TensorBoard.')
+    parser.add_argument('--wandb_project',
+                        default=None,
+                        help='W&B project name.')
+    parser.add_argument('--wandb_entity',
+                        default=None,
+                        help='W&B entity (team/user).')
+    parser.add_argument('--wandb_name',
+                        default=None,
+                        help='W&B run name.')
+    parser.add_argument('--wandb_mode',
+                        choices=['online', 'offline'],
+                        default=None,
+                        help='W&B mode.')
+    parser.add_argument('--wandb_tags',
+                        default=None,
+                        help='Comma-separated W&B tags.')
     return parser.parse_args()
 
 
@@ -75,6 +124,35 @@ def main():
         conf.ddim_eta = args.ddim_eta
     if args.disable_zd_cond_only:
         conf.zd_cond_only = False
+    if args.batch_size is not None:
+        conf.batch_size = args.batch_size
+    if args.total_samples is not None:
+        conf.total_samples = args.total_samples
+    if args.batch_size_eval is not None:
+        conf.batch_size_eval = args.batch_size_eval
+    if args.recon_every_samples is not None:
+        conf.recon_every_samples = args.recon_every_samples
+    if args.accum_batches is not None:
+        conf.accum_batches = args.accum_batches
+    if args.num_workers is not None:
+        conf.num_workers = args.num_workers
+    if args.grad_checkpoint:
+        conf.net_beatgans_gradient_checkpoint = True
+    if args.enc_grad_checkpoint:
+        conf.net_enc_grad_checkpoint = True
+    if args.use_wandb:
+        conf.use_wandb = True
+    if args.wandb_project is not None:
+        conf.wandb_project = args.wandb_project
+    if args.wandb_entity is not None:
+        conf.wandb_entity = args.wandb_entity
+    if args.wandb_name is not None:
+        conf.wandb_name = args.wandb_name
+    if args.wandb_mode is not None:
+        conf.wandb_mode = args.wandb_mode
+    if args.wandb_tags:
+        conf.wandb_tags = tuple(
+            t.strip() for t in args.wandb_tags.split(',') if t.strip())
 
     if conf.use_zd_cond:
         conf.name = f'{conf.name}_zd'

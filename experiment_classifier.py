@@ -10,6 +10,7 @@ import pytorch_lightning as pl
 from pytorch_lightning import loggers as pl_loggers
 from pytorch_lightning.callbacks import *
 import torch
+from checkpoint_utils import prune_old_checkpoints
 
 
 class ZipLoader:
@@ -290,13 +291,6 @@ def train_cls(conf: TrainConfig, gpus):
 
     if not os.path.exists(conf.logdir):
         os.makedirs(conf.logdir)
-    checkpoint = ModelCheckpoint(
-        dirpath=f'{conf.logdir}',
-        save_last=True,
-        save_top_k=1,
-        # every_n_train_steps=conf.save_every_samples //
-        # conf.batch_size_effective,
-    )
     checkpoint_path = f'{conf.logdir}/last.ckpt'
     if os.path.exists(checkpoint_path):
         resume = checkpoint_path
@@ -306,6 +300,17 @@ def train_cls(conf: TrainConfig, gpus):
             resume = conf.continue_from.path
         else:
             resume = None
+    removed_checkpoints = prune_old_checkpoints(conf.logdir,
+                                                keep_paths=[resume])
+    if removed_checkpoints:
+        print('removed stale checkpoints:', removed_checkpoints)
+    checkpoint = ModelCheckpoint(
+        dirpath=f'{conf.logdir}',
+        save_last=True,
+        save_top_k=0,
+        # every_n_train_steps=conf.save_every_samples //
+        # conf.batch_size_effective,
+    )
 
     tb_logger = pl_loggers.TensorBoardLogger(save_dir=conf.logdir,
                                              name=None,

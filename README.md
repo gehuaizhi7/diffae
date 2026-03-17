@@ -224,10 +224,14 @@ python run_zd_cond.py \
 
 Additional logged z_d metrics:
 - `loss/L_diff`
-- `loss/L_feat`
-- `loss/L_align_sg_ze_to_zd`, `loss/L_align_sg_zd_to_ze`
-- `zd/sparsity_nnz_over_k`
+- `loss/alignment_loss`
+- `loss/z_e_z_d_mse`
+- `loss/z_d_shuffle_gap`
+- `zd/code_zero_percent`
+- `zd/code_active_fraction`
 - `zd/ista_objective_drop`
-- `zd/max_offdiag_dt_d`
+- `zd/dictionary_max_offdiag`
 - `zd/dead_atom_fraction`
-- `zd/z_e_norm_mean`, `zd/z_e_norm_std`
+- `zd/z_d_mean`, `zd/z_d_std`
+- `zd/z_d_l2_norm_mean`, `zd/z_d_l2_norm_std`
+- `zd/z_e_l2_norm_mean`, `zd/z_e_l2_norm_std`
