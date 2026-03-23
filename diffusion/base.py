@@ -135,6 +135,8 @@ class GaussianDiffusionBeatGans:
                                               x_start=x_start.detach(),
                                               **model_kwargs)
             model_output = model_forward.pred
+            if isinstance(model_forward, AutoencReturn):
+                terms['cond'] = model_forward.cond
 
             _model_output = model_output
             if self.conf.train_pred_xstart_detach:

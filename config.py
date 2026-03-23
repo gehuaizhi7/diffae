@@ -128,9 +128,20 @@ class TrainConfig(BaseConfig):
     k: int = 1024
     lambda_l1: float = 0.1
     ista_steps: int = 5
+    lambda_ze_zd: float = 0.0
     beta_align: float = 0.0
     gamma_align: float = 0.0
     lr_D: float = 0.001
+    zd_d_only_samples: int = 0
+    # 'joint' keeps the current behavior.
+    # 'dict_then_diffusion' does:
+    #   stage 1: fix encoder, train only D with ||z_d - z_e||_2^2
+    #   stage 2: fix encoder and D, train only the diffusion loss L_diff
+    zd_train_mode: str = 'joint'
+    zd_stage1_samples: int = 0
+    # when enabled for dict_then_diffusion, stage-2 diffusion conditions on z*
+    # (the sparse code) instead of z_d = D z*.
+    zd_stage2_use_zstar_cond: bool = False
     # use z_d as the only conditioning source in the denoiser (exact algorithm mode)
     zd_cond_only: bool = True
     # separate learning rates for encoder and diffusion denoiser.
@@ -358,6 +369,8 @@ class TrainConfig(BaseConfig):
 
     def make_model_conf(self):
         zd_cond_dim = self.m or self.style_ch
+        if self.use_zd_cond and self.zd_stage2_use_zstar_cond:
+            zd_cond_dim = self.k
         if self.model_name == ModelName.beatgans_ddpm:
             self.model_type = ModelType.ddpm
             self.model_conf = BeatGANsUNetConfig(

@@ -1,4 +1,5 @@
 import argparse
+import os
 
 from experiment import train
 from templates import *
@@ -38,9 +39,44 @@ def parse_args():
     parser.add_argument('--k', type=int, default=None)
     parser.add_argument('--lambda_l1', type=float, default=None)
     parser.add_argument('--ista_steps', type=int, default=None)
+    parser.add_argument('--lambda_ze_zd',
+                        type=float,
+                        default=None,
+                        help='Coefficient for the joint-training ||z_e - z_d||_2^2 loss.')
     parser.add_argument('--beta_align', type=float, default=None)
     parser.add_argument('--gamma_align', type=float, default=None)
     parser.add_argument('--lr_D', type=float, default=None)
+    parser.add_argument('--zd_d_only_samples',
+                        '--d_only_samples',
+                        dest='zd_d_only_samples',
+                        type=int,
+                        default=None,
+                        help='Train only the dictionary D for this many samples before joint training.')
+    parser.add_argument('--zd_train_mode',
+                        '--zd-train-mode',
+                        dest='zd_train_mode',
+                        choices=['joint', 'dict_then_diffusion'],
+                        default=None,
+                        help=('z_d training schedule. '
+                              '"joint" keeps the current path, while '
+                              '"dict_then_diffusion" runs stage 1 '
+                              '(dictionary only) then stage 2 '
+                              '(diffusion only).'))
+    parser.add_argument('--zd_stage1_samples',
+                        '--zd-stage1-samples',
+                        dest='zd_stage1_samples',
+                        type=int,
+                        default=None,
+                        help=('For --zd_train_mode=dict_then_diffusion, '
+                              'number of samples in stage 1 before switching '
+                              'to diffusion-only stage 2.'))
+    parser.add_argument('--zd_stage2_use_zstar_cond',
+                        '--zd-stage2-use-zstar-cond',
+                        dest='zd_stage2_use_zstar_cond',
+                        action='store_true',
+                        help=('For --zd_train_mode=dict_then_diffusion, use '
+                              'the sparse code z* as the diffusion condition '
+                              'in stage 2 instead of z_d = D z*.'))
     parser.add_argument('--lr_E', type=float, default=None)
     parser.add_argument('--lr_eps', type=float, default=None)
     parser.add_argument('--ddim_eta', type=float, default=None)
@@ -94,6 +130,18 @@ def parse_args():
     parser.add_argument('--wandb_tags',
                         default=None,
                         help='Comma-separated W&B tags.')
+    parser.add_argument('--pretrain_exp',
+                        '--pretrain-exp',
+                        dest='pretrain_exp',
+                        default=None,
+                        help=('Experiment name under checkpoints/ to load with '
+                              'strict=False before training, e.g. '
+                              'ffhq128_autoenc_130M_baseline_compare.'))
+    parser.add_argument('--pretrain_ckpt',
+                        '--pretrain-ckpt',
+                        dest='pretrain_ckpt',
+                        default=None,
+                        help='Explicit checkpoint path to load with strict=False before training.')
     return parser.parse_args()
 
 
@@ -110,12 +158,22 @@ def main():
         conf.lambda_l1 = args.lambda_l1
     if args.ista_steps is not None:
         conf.ista_steps = args.ista_steps
+    if args.lambda_ze_zd is not None:
+        conf.lambda_ze_zd = args.lambda_ze_zd
     if args.beta_align is not None:
         conf.beta_align = args.beta_align
     if args.gamma_align is not None:
         conf.gamma_align = args.gamma_align
     if args.lr_D is not None:
         conf.lr_D = args.lr_D
+    if args.zd_d_only_samples is not None:
+        conf.zd_d_only_samples = args.zd_d_only_samples
+    if args.zd_train_mode is not None:
+        conf.zd_train_mode = args.zd_train_mode
+    if args.zd_stage1_samples is not None:
+        conf.zd_stage1_samples = args.zd_stage1_samples
+    if args.zd_stage2_use_zstar_cond:
+        conf.zd_stage2_use_zstar_cond = True
     if args.lr_E is not None:
         conf.lr_E = args.lr_E
     if args.lr_eps is not None:
@@ -153,6 +211,17 @@ def main():
     if args.wandb_tags:
         conf.wandb_tags = tuple(
             t.strip() for t in args.wandb_tags.split(',') if t.strip())
+    if args.pretrain_exp is not None and args.pretrain_ckpt is not None:
+        raise ValueError('Specify only one of --pretrain_exp or --pretrain_ckpt.')
+    if args.pretrain_exp is not None:
+        conf.pretrain = PretrainConfig(
+            name=args.pretrain_exp,
+            path=os.path.join('checkpoints', args.pretrain_exp, 'last.ckpt'),
+        )
+    elif args.pretrain_ckpt is not None:
+        pretrain_name = os.path.splitext(os.path.basename(args.pretrain_ckpt))[0]
+        conf.pretrain = PretrainConfig(name=pretrain_name,
+                                       path=args.pretrain_ckpt)
 
     if conf.use_zd_cond:
         conf.name = f'{conf.name}_zd'

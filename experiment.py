@@ -93,15 +93,41 @@ class LitModel(pl.LightningModule):
             self.conds_mean = None
             self.conds_std = None
 
+        if hasattr(self.model, 'encoder'):
+            self._zd_enc_params = [
+                p for p in self.model.encoder.parameters() if p.requires_grad
+            ]
+            enc_param_ids = set(id(p) for p in self._zd_enc_params)
+            self._zd_eps_params = [
+                p for p in self.model.parameters()
+                if p.requires_grad and id(p) not in enc_param_ids
+            ]
+        else:
+            self._zd_enc_params = []
+            self._zd_eps_params = []
+
         if conf.use_zd_cond:
             if conf.train_mode != TrainMode.diffusion:
                 raise ValueError(
                     'z_d conditioning is implemented for TrainMode.diffusion only.'
                 )
+            if conf.zd_train_mode not in ['joint', 'dict_then_diffusion']:
+                raise ValueError(
+                    f'Unsupported zd_train_mode={conf.zd_train_mode!r}.')
+            if (conf.zd_stage2_use_zstar_cond
+                    and conf.zd_train_mode != 'dict_then_diffusion'):
+                raise ValueError(
+                    'zd_stage2_use_zstar_cond is only supported when '
+                    'zd_train_mode="dict_then_diffusion".')
             if not hasattr(self.model, 'encoder'):
                 raise ValueError(
                     'z_d conditioning requires a model with an encoder (autoencoder model).'
                 )
+            if (conf.zd_train_mode == 'dict_then_diffusion'
+                    and conf.zd_stage1_samples <= 0):
+                raise ValueError(
+                    'zd_stage1_samples must be > 0 when '
+                    'zd_train_mode="dict_then_diffusion".')
             enc_dim = getattr(self.model.conf, 'enc_out_channels', self.conf.style_ch)
             if self.conf.m is not None and self.conf.m != enc_dim:
                 raise ValueError(
@@ -112,9 +138,14 @@ class LitModel(pl.LightningModule):
             self.zd_dictionary = SparseDictionary(self.conf.m, self.conf.k)
             self.conf.lr_E = self.conf.lr if self.conf.lr_E is None else self.conf.lr_E
             self.conf.lr_eps = self.conf.lr if self.conf.lr_eps is None else self.conf.lr_eps
+            self._zd_d_params = [
+                p for p in self.zd_dictionary.parameters() if p.requires_grad
+            ]
         else:
             self.zd_encoder = None
             self.zd_dictionary = None
+            self._zd_d_params = []
+        self._zd_training_stage_active = None
 
     def _iter_experiments(self):
         if self.logger is None:
@@ -263,6 +294,71 @@ class LitModel(pl.LightningModule):
             'ista_objectives': ista_out.objectives,
         }
 
+    def _get_zd_diffusion_condition(self, z_d, z_star, diffusion_only_stage):
+        if (diffusion_only_stage and self.conf.zd_train_mode == 'dict_then_diffusion'
+                and self.conf.zd_stage2_use_zstar_cond):
+            return z_star
+        return z_d
+
+    def _get_zd_training_stage(self):
+        if not (self.conf.use_zd_cond
+                and self.conf.train_mode == TrainMode.diffusion):
+            return None
+        if self.conf.zd_train_mode == 'dict_then_diffusion':
+            if self.num_samples < self.conf.zd_stage1_samples:
+                return 'stage1_dictionary'
+            return 'stage2_diffusion'
+        if (self.conf.zd_d_only_samples > 0
+                and self.num_samples < self.conf.zd_d_only_samples):
+            return 'dict_warmup'
+        return 'joint'
+
+    def _is_zd_d_only_stage(self):
+        return self._get_zd_training_stage() in [
+            'dict_warmup',
+            'stage1_dictionary',
+        ]
+
+    def _is_zd_diffusion_only_stage(self):
+        return self._get_zd_training_stage() == 'stage2_diffusion'
+
+    @staticmethod
+    def _zd_stage_to_index(stage):
+        return {
+            None: 0.0,
+            'joint': 0.0,
+            'dict_warmup': 1.0,
+            'stage1_dictionary': 1.0,
+            'stage2_diffusion': 2.0,
+        }[stage]
+
+    def _sync_zd_training_stage(self):
+        stage = self._get_zd_training_stage()
+        if stage != self._zd_training_stage_active:
+            self._zd_training_stage_active = stage
+            if self.global_rank == 0 and stage is not None:
+                if stage == 'dict_warmup':
+                    stage_name = 'dictionary-only warmup'
+                elif stage == 'joint':
+                    stage_name = 'full joint training'
+                elif stage == 'stage1_dictionary':
+                    stage_name = 'stage 1: dictionary-only training'
+                elif stage == 'stage2_diffusion':
+                    stage_name = 'stage 2: diffusion-only training'
+                else:
+                    stage_name = stage
+                print(
+                    f'z_d training stage -> {stage_name} '
+                    f'(num_samples={self.num_samples}, '
+                    f'd_only_samples={self.conf.zd_d_only_samples}, '
+                    f'zd_stage1_samples={self.conf.zd_stage1_samples})')
+        return stage
+
+    @staticmethod
+    def _clear_param_grads(params):
+        for p in params:
+            p.grad = None
+
     @torch.no_grad()
     def _grad_l2_norm(self, params):
         total = None
@@ -276,28 +372,52 @@ class LitModel(pl.LightningModule):
         return total.sqrt()
 
     @torch.no_grad()
+    def _collect_zd_monitoring_metrics(self, z_e, z_d, z_star,
+                                       ista_objectives):
+        if z_e is None or z_d is None or z_star is None or ista_objectives is None:
+            return {}
+
+        ista_drop = (ista_objectives[:, 0] - ista_objectives[:, -1]).mean()
+        code_zero_count_mean = ((z_star.abs() <= 1e-6).float().sum(dim=1)
+                                ).mean()
+        code_active_fraction = ((z_star.abs() > 1e-6).float().sum(dim=1) /
+                                float(self.conf.k)).mean()
+        code_zero_percent = ((z_star.abs() <= 1e-6).float().mean() * 100.0)
+        dead_atom_fraction = SparseDictionary.dead_atom_fraction(z_star)
+        dictionary_max_offdiag = self.zd_dictionary.max_offdiag()
+        z_d_mean = z_d.mean()
+        z_d_std = z_d.std(unbiased=False)
+        z_d_l2_norm = z_d.norm(dim=1)
+        z_e_l2_norm = z_e.norm(dim=1)
+
+        return {
+            'code_zero_count_mean': code_zero_count_mean,
+            'code_active_fraction': code_active_fraction,
+            'code_zero_percent': code_zero_percent,
+            'ista_objective_drop': ista_drop,
+            'dictionary_max_offdiag': dictionary_max_offdiag,
+            'dead_atom_fraction': dead_atom_fraction,
+            'z_d_mean': z_d_mean,
+            'z_d_std': z_d_std,
+            'z_d_l2_norm_mean': z_d_l2_norm.mean(),
+            'z_d_l2_norm_std': z_d_l2_norm.std(unbiased=False),
+            'z_e_l2_norm_mean': z_e_l2_norm.mean(),
+            'z_e_l2_norm_std': z_e_l2_norm.std(unbiased=False),
+        }
+
+    @torch.no_grad()
     def _log_zd_grad_norms(self):
-        if not (self.conf.use_zd_cond
-                and self.conf.train_mode == TrainMode.diffusion):
+        if self.conf.train_mode != TrainMode.diffusion:
             return
         if not hasattr(self.model, 'encoder'):
             return
 
-        enc_params = [p for p in self.model.encoder.parameters() if p.requires_grad]
-        enc_param_ids = set(id(p) for p in enc_params)
-        eps_params = [
-            p for p in self.model.parameters()
-            if p.requires_grad and id(p) not in enc_param_ids
-        ]
-        d_params = []
-        if self.zd_dictionary is not None:
-            d_params = [p for p in self.zd_dictionary.parameters() if p.requires_grad]
-
         grad_metrics = {
-            'theta_E': self._grad_l2_norm(enc_params),
-            'theta_epsilon': self._grad_l2_norm(eps_params),
-            'D': self._grad_l2_norm(d_params),
+            'theta_E': self._grad_l2_norm(self._zd_enc_params),
+            'theta_epsilon': self._grad_l2_norm(self._zd_eps_params),
         }
+        if self.conf.use_zd_cond and self._zd_d_params:
+            grad_metrics['D'] = self._grad_l2_norm(self._zd_d_params)
         gathered = {
             key: self.all_gather(val).mean()
             for key, val in grad_metrics.items()
@@ -314,6 +434,12 @@ class LitModel(pl.LightningModule):
             code=z_star_detached,
             lr=self.conf.lr_D,
         )
+
+    @torch.no_grad()
+    def _renormalize_zd_dictionary(self):
+        if self.zd_dictionary is None:
+            return
+        self.zd_dictionary.normalize_columns()
 
     def forward(self, noise=None, x_start=None, ema_model: bool = False):
         with amp.autocast(False):
@@ -533,89 +659,166 @@ class LitModel(pl.LightningModule):
                 """
                 main training mode!!!
                 """
-                # with numpy seed we have the problem that the sample t's are related!
-                t, weight = self.T_sampler.sample(len(x_start), x_start.device)
-                model_kwargs = {}
-                diffusion_noise = None
+                zd_stage = self._sync_zd_training_stage()
+                d_only_stage = zd_stage in ['dict_warmup', 'stage1_dictionary']
+                diffusion_only_stage = zd_stage == 'stage2_diffusion'
+                if self.conf.use_zd_cond:
+                    metrics['d_only_stage'] = float(d_only_stage)
+                    metrics['training_stage'] = self._zd_stage_to_index(
+                        zd_stage)
 
                 if self.conf.use_zd_cond:
-                    zd_pack = self._compute_zd_latents(x_start)
-                    z_e = zd_pack['z_e']
-                    z_star = zd_pack['z_star']
-                    z_d = zd_pack['z_d']
-                    ista_objectives = zd_pack['ista_objectives']
-                    model_kwargs['z_d'] = z_d
-                    # Explicit noise sample for diffusion loss.
-                    diffusion_noise = torch.randn_like(x_start)
+                    if d_only_stage:
+                        with torch.no_grad():
+                            zd_pack = self._compute_zd_latents(x_start)
+                            z_e = zd_pack['z_e'].detach()
+                            z_star = zd_pack['z_star'].detach()
+                            ista_objectives = zd_pack['ista_objectives'].detach()
+                        z_d = self.zd_dictionary.decode(z_star)
+                        l_recon = torch.mean((z_e - z_d)**2)
+                        loss = l_recon
+                        metrics['D_recon'] = l_recon.detach()
+                        metrics['z_e_z_d_mse'] = l_recon.detach()
+                    elif diffusion_only_stage:
+                        with torch.no_grad():
+                            zd_pack = self._compute_zd_latents(x_start)
+                            z_e = zd_pack['z_e'].detach()
+                            z_star = zd_pack['z_star'].detach()
+                            z_d = zd_pack['z_d'].detach()
+                            ista_objectives = zd_pack[
+                                'ista_objectives'].detach()
+                    else:
+                        zd_pack = self._compute_zd_latents(x_start)
+                        z_e = zd_pack['z_e']
+                        z_star = zd_pack['z_star']
+                        z_d = zd_pack['z_d']
+                        ista_objectives = zd_pack['ista_objectives']
+                else:
+                    z_e = None
+                    z_star = None
+                    z_d = None
+                    ista_objectives = None
 
-                losses = self.sampler.training_losses(
-                    model=self.model,
-                    x_start=x_start,
-                    t=t,
-                    model_kwargs=model_kwargs,
-                    noise=diffusion_noise,
-                )
-                l_diff = losses['loss'].mean()
-                loss = l_diff
-                metrics['L_diff'] = l_diff.detach()
+                if not d_only_stage:
+                    # with numpy seed we have the problem that the sample t's are related!
+                    t, weight = self.T_sampler.sample(len(x_start), x_start.device)
+                    model_kwargs = {}
+                    diffusion_noise = None
 
-                if self.conf.use_zd_cond:
-                    # L = L_diff + gamma*||z_e-z_d||^2 + beta*||z_d-z_e||^2
-                    l_align_zd = torch.mean((z_e - z_d)**2)
-                    l_align_ze = torch.mean((z_d - z_e)**2)
-                    l_align = (self.conf.gamma_align * l_align_zd +
-                               self.conf.beta_align * l_align_ze)
-                    loss = loss + l_align
-
-                    with torch.no_grad():
-                        # shuffled z_d ablation: compare with same t/noise for fair delta
-                        if z_d.shape[0] > 1:
-                            shift = torch.randint(1,
-                                                  z_d.shape[0], (1, ),
-                                                  device=z_d.device).item()
-                            z_d_shuffle = z_d.roll(shifts=shift, dims=0)
-                        else:
-                            z_d_shuffle = torch.randn_like(z_d)
-
-                        losses_shuf = self.sampler.training_losses(
-                            model=self.model,
-                            x_start=x_start,
-                            t=t,
-                            model_kwargs={'z_d': z_d_shuffle},
-                            noise=diffusion_noise,
+                    if self.conf.use_zd_cond:
+                        zd_cond = self._get_zd_diffusion_condition(
+                            z_d=z_d,
+                            z_star=z_star,
+                            diffusion_only_stage=diffusion_only_stage,
                         )
-                        l_diff_shuf = losses_shuf['loss'].mean()
-                        z_d_shuffle_gap = l_diff_shuf - l_diff.detach()
+                        model_kwargs['z_d'] = zd_cond
+                        if diffusion_only_stage and not self.conf.zd_cond_only:
+                            model_kwargs['cond'] = z_e
+                    if self.conf.use_zd_cond or hasattr(self.model, 'encoder'):
+                        # Use the same explicit noise for the main loss and shuffled-condition
+                        # ablations so the gap is directly comparable.
+                        diffusion_noise = torch.randn_like(x_start)
 
-                        ista_drop = (ista_objectives[:, 0] -
-                                     ista_objectives[:, -1]).mean()
-                        code_active_fraction = (
-                            (z_star.abs() > 1e-6).float().sum(dim=1) /
-                            float(self.conf.k)).mean()
-                        code_zero_percent = (
-                            (z_star.abs() <= 1e-6).float().mean() * 100.0)
-                        dead_atom_fraction = SparseDictionary.dead_atom_fraction(
-                            z_star)
-                        dictionary_max_offdiag = self.zd_dictionary.max_offdiag()
-                        z_d_mean = z_d.mean()
-                        z_d_std = z_d.std(unbiased=False)
-                        z_d_l2_norm = z_d.norm(dim=1)
-                        z_e_l2_norm = z_e.norm(dim=1)
+                    losses = self.sampler.training_losses(
+                        model=self.model,
+                        x_start=x_start,
+                        t=t,
+                        model_kwargs=model_kwargs,
+                        noise=diffusion_noise,
+                    )
+                    l_diff = losses['loss'].mean()
+                    loss = l_diff
+                    metrics['L_diff'] = l_diff.detach()
+                    if losses.get('cond') is not None:
+                        with torch.no_grad():
+                            z = losses['cond'].detach()
+                            z_flat = z.reshape(z.shape[0], -1)
+                            z_l2_norm = z_flat.norm(dim=1)
+                        metrics['z_mean'] = z.mean()
+                        metrics['z_std'] = z.std(unbiased=False)
+                        metrics['z_l2_norm_mean'] = z_l2_norm.mean()
+                        metrics['z_l2_norm_std'] = z_l2_norm.std(
+                            unbiased=False)
 
-                    metrics['alignment_loss'] = l_align.detach()
-                    metrics['z_d_shuffle_gap'] = z_d_shuffle_gap
-                    metrics['z_e_z_d_mse'] = l_align_zd.detach()
-                    metrics['code_active_fraction'] = code_active_fraction
-                    metrics['code_zero_percent'] = code_zero_percent
-                    metrics['ista_objective_drop'] = ista_drop
-                    metrics['dictionary_max_offdiag'] = dictionary_max_offdiag
-                    metrics['dead_atom_fraction'] = dead_atom_fraction
-                    metrics['z_d_mean'] = z_d_mean
-                    metrics['z_d_std'] = z_d_std
-                    metrics['z_d_l2_norm_mean'] = z_d_l2_norm.mean()
-                    metrics['z_d_l2_norm_std'] = z_d_l2_norm.std(unbiased=False)
-                    metrics['z_e_l2_norm_mean'] = z_e_l2_norm.mean()
-                    metrics['z_e_l2_norm_std'] = z_e_l2_norm.std(unbiased=False)
+                    if self.conf.use_zd_cond and not diffusion_only_stage:
+                        # L = L_diff + gamma*||z_e-z_d||^2 + beta*||z_d-z_e||^2
+                        #   + lambda_ze_zd*||z_e-z_d||^2
+                        l_align_zd = torch.mean((z_e - z_d)**2)
+                        l_align_ze = torch.mean((z_d - z_e)**2)
+                        l_align = (self.conf.gamma_align * l_align_zd +
+                                   self.conf.beta_align * l_align_ze)
+                        l_ze_zd = self.conf.lambda_ze_zd * l_align_zd
+                        loss = loss + l_align
+                        loss = loss + l_ze_zd
+                        metrics['alignment_loss'] = l_align.detach()
+                        metrics['z_e_z_d_loss'] = l_ze_zd.detach()
+                        metrics['z_e_z_d_mse'] = l_align_zd.detach()
+
+                    if self.conf.use_zd_cond:
+                        with torch.no_grad():
+                            # shuffled z_d ablation: compare with same t/noise for fair delta
+                            zd_cond = self._get_zd_diffusion_condition(
+                                z_d=z_d,
+                                z_star=z_star,
+                                diffusion_only_stage=diffusion_only_stage,
+                            )
+                            if zd_cond.shape[0] > 1:
+                                shift = torch.randint(1,
+                                                      zd_cond.shape[0], (1, ),
+                                                      device=zd_cond.device).item()
+                                z_d_shuffle = zd_cond.roll(shifts=shift, dims=0)
+                            else:
+                                z_d_shuffle = torch.randn_like(zd_cond)
+
+                            shuf_model_kwargs = {'z_d': z_d_shuffle}
+                            if diffusion_only_stage and not self.conf.zd_cond_only:
+                                shuf_model_kwargs['cond'] = z_e
+
+                            losses_shuf = self.sampler.training_losses(
+                                model=self.model,
+                                x_start=x_start,
+                                t=t,
+                                model_kwargs=shuf_model_kwargs,
+                                noise=diffusion_noise,
+                            )
+                            l_diff_shuf = losses_shuf['loss'].mean()
+                            z_d_shuffle_gap = l_diff_shuf - l_diff.detach()
+                            metrics['z_d_shuffle_gap'] = z_d_shuffle_gap
+                        metrics.update(
+                            self._collect_zd_monitoring_metrics(
+                                z_e=z_e,
+                                z_d=z_d,
+                                z_star=z_star,
+                                ista_objectives=ista_objectives,
+                            ))
+                    elif losses.get('cond') is not None:
+                        with torch.no_grad():
+                            cond = losses['cond'].detach()
+                            if cond.shape[0] > 1:
+                                shift = torch.randint(1,
+                                                      cond.shape[0], (1, ),
+                                                      device=cond.device).item()
+                                cond_shuffle = cond.roll(shifts=shift, dims=0)
+                            else:
+                                cond_shuffle = torch.randn_like(cond)
+
+                            losses_shuf = self.sampler.training_losses(
+                                model=self.model,
+                                x_start=x_start,
+                                t=t,
+                                model_kwargs={'cond': cond_shuffle},
+                                noise=diffusion_noise,
+                            )
+                            metrics['z_d_shuffle_gap'] = (
+                                losses_shuf['loss'].mean() - l_diff.detach())
+                elif self.conf.use_zd_cond:
+                    metrics.update(
+                        self._collect_zd_monitoring_metrics(
+                            z_e=z_e,
+                            z_d=z_d,
+                            z_star=z_star,
+                            ista_objectives=ista_objectives,
+                        ))
             elif self.conf.train_mode.is_latent_diffusion():
                 """
                 training the latent variables!
@@ -640,7 +843,9 @@ class LitModel(pl.LightningModule):
             self._log_scalar_all('loss', gathered['loss'], self.num_samples)
             for key in [
                     'L_diff',
+                    'D_recon',
                     'alignment_loss',
+                    'z_e_z_d_loss',
                     'z_d_shuffle_gap',
                     'z_e_z_d_mse',
                     'latent',
@@ -649,6 +854,7 @@ class LitModel(pl.LightningModule):
                     self._log_scalar_all(f'loss/{key}', gathered[key],
                                          self.num_samples)
             for key in [
+                    'code_zero_count_mean',
                     'code_zero_percent',
                     'code_active_fraction',
                     'ista_objective_drop',
@@ -660,9 +866,20 @@ class LitModel(pl.LightningModule):
                     'z_d_l2_norm_std',
                     'z_e_l2_norm_mean',
                     'z_e_l2_norm_std',
+                    'd_only_stage',
+                    'training_stage',
             ]:
                 if key in gathered:
                     self._log_scalar_all(f'zd/{key}', gathered[key],
+                                         self.num_samples)
+            for key, metric_name in [
+                    ('z_mean', 'mean'),
+                    ('z_std', 'std'),
+                    ('z_l2_norm_mean', 'l2_norm_mean'),
+                    ('z_l2_norm_std', 'l2_norm_std'),
+            ]:
+                if key in gathered:
+                    self._log_scalar_all(f'z/{metric_name}', gathered[key],
                                          self.num_samples)
 
         return {'loss': loss}
@@ -692,6 +909,12 @@ class LitModel(pl.LightningModule):
 
     def on_before_optimizer_step(self, optimizer: Optimizer,
                                  optimizer_idx: int) -> None:
+        if self._is_zd_d_only_stage():
+            self._clear_param_grads(self._zd_enc_params)
+            self._clear_param_grads(self._zd_eps_params)
+        elif self._is_zd_diffusion_only_stage():
+            self._clear_param_grads(self._zd_enc_params)
+            self._clear_param_grads(self._zd_d_params)
         self._log_zd_grad_norms()
         # fix the fp16 + clip grad norm problem with pytorch lightinng
         # this is the currently correct way to do it
@@ -699,11 +922,17 @@ class LitModel(pl.LightningModule):
             # from trainer.params_grads import grads_norm, iter_opt_params
             params = [
                 p for group in optimizer.param_groups for p in group['params']
+                if p.grad is not None
             ]
-            # print('before:', grads_norm(iter_opt_params(optimizer)))
-            torch.nn.utils.clip_grad_norm_(params,
-                                           max_norm=self.conf.grad_clip)
-            # print('after:', grads_norm(iter_opt_params(optimizer)))
+            if params:
+                # print('before:', grads_norm(iter_opt_params(optimizer)))
+                torch.nn.utils.clip_grad_norm_(params,
+                                               max_norm=self.conf.grad_clip)
+                # print('after:', grads_norm(iter_opt_params(optimizer)))
+
+    def on_before_zero_grad(self, optimizer: Optimizer) -> None:
+        # Lightning 1.4 calls this after optimizer.step() and before zero_grad().
+        self._renormalize_zd_dictionary()
 
     def log_sample(self, x_start):
         """
@@ -909,27 +1138,19 @@ class LitModel(pl.LightningModule):
                 raise RuntimeError(
                     'use_zd_cond requires encoder parameters for separate lr_E/lr_eps.'
                 )
-            enc_params = [
-                p for p in self.model.encoder.parameters() if p.requires_grad
-            ]
-            enc_param_ids = set(id(p) for p in enc_params)
-            eps_params = [
-                p for p in self.model.parameters()
-                if p.requires_grad and id(p) not in enc_param_ids
-            ]
             params = [
                 {
-                    'params': eps_params,
+                    'params': self._zd_eps_params,
                     'lr': self.conf.lr_eps,
                 },
                 {
-                    'params': enc_params,
+                    'params': self._zd_enc_params,
                     'lr': self.conf.lr_E,
                 },
             ]
-            if self.zd_dictionary is not None:
+            if self._zd_d_params:
                 params.append({
-                    'params': self.zd_dictionary.parameters(),
+                    'params': self._zd_d_params,
                     'lr': self.conf.lr_D,
                 })
             lr_default = self.conf.lr_eps

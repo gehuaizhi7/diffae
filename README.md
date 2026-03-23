@@ -203,30 +203,44 @@ python run_celeba64.py
 Use `run_zd_cond.py` to enable the external sparse-conditioned latent `z_d` path.
 By default, this runs in exact `z_d`-only conditioning mode (`--disable_zd_cond_only` turns that off).
 
-Example training command:
+Example two-stage training command:
 
 ```
 python run_zd_cond.py \
   --template ffhq128_autoenc_130M \
   --gpus 0,1,2,3 \
   --use_zd_cond \
+  --pretrain-exp ffhq128_autoenc_130M_baseline_compare \
+  --zd-train-mode dict_then_diffusion \
+  --zd-stage1-samples 200000 \
+  --zd-stage2-use-zstar-cond \
   --m 512 \
   --k 1024 \
   --lambda_l1 0.1 \
   --ista_steps 8 \
-  --gamma_align 0.1 \
-  --beta_align 0.1 \
   --lr_D 0.001 \
   --lr_E 0.0001 \
   --lr_eps 0.0001 \
   --ddim_eta 0.0
 ```
 
+In `--zd-train-mode dict_then_diffusion`:
+- stage 1 freezes the pretrained encoder, skips diffusion entirely, and trains only `D` with `||z_d - z_e||_2^2`
+- stage 2 freezes both the encoder and `D`, and trains only the diffusion model with `L_diff`
+- add `--zd-stage2-use-zstar-cond` if you want stage 2 to condition on `z*` instead of `z_d`
+
+The older warmup-then-joint path is still available with the default
+`--zd-train-mode joint`; in that mode, `--d_only_samples N` keeps only `D`
+updating for the first `N` samples before switching back to joint training of
+`D`, the encoder, and the diffusion model.
+
 Additional logged z_d metrics:
 - `loss/L_diff`
 - `loss/alignment_loss`
+- `loss/z_e_z_d_loss`
 - `loss/z_e_z_d_mse`
 - `loss/z_d_shuffle_gap`
+- `zd/code_zero_count_mean`
 - `zd/code_zero_percent`
 - `zd/code_active_fraction`
 - `zd/ista_objective_drop`
@@ -235,3 +249,5 @@ Additional logged z_d metrics:
 - `zd/z_d_mean`, `zd/z_d_std`
 - `zd/z_d_l2_norm_mean`, `zd/z_d_l2_norm_std`
 - `zd/z_e_l2_norm_mean`, `zd/z_e_l2_norm_std`
+- `zd/d_only_stage`
+- `zd/training_stage`
