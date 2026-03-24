@@ -111,9 +111,20 @@ class LitModel(pl.LightningModule):
                 raise ValueError(
                     'z_d conditioning is implemented for TrainMode.diffusion only.'
                 )
+            if conf.ista_solver not in ['ista', 'fista']:
+                raise ValueError(
+                    f'Unsupported ista_solver={conf.ista_solver!r}.')
             if conf.zd_train_mode not in ['joint', 'dict_then_diffusion']:
                 raise ValueError(
                     f'Unsupported zd_train_mode={conf.zd_train_mode!r}.')
+            if conf.zd_stage2_mode not in ['alternating', 'fixed_d']:
+                raise ValueError(
+                    f'Unsupported zd_stage2_mode={conf.zd_stage2_mode!r}.')
+            if (conf.zd_stage2_mode != 'alternating'
+                    and conf.zd_train_mode != 'dict_then_diffusion'):
+                raise ValueError(
+                    'zd_stage2_mode is only supported when '
+                    'zd_train_mode="dict_then_diffusion".')
             if (conf.zd_stage2_use_zstar_cond
                     and conf.zd_train_mode != 'dict_then_diffusion'):
                 raise ValueError(
@@ -136,6 +147,8 @@ class LitModel(pl.LightningModule):
             self.conf.m = enc_dim
             self.zd_encoder = EncoderAdapter(self.model)
             self.zd_dictionary = SparseDictionary(self.conf.m, self.conf.k)
+            self.model.__dict__['_external_zd_dictionary'] = self.zd_dictionary
+            self.ema_model.__dict__['_external_zd_dictionary'] = self.zd_dictionary
             self.conf.lr_E = self.conf.lr if self.conf.lr_E is None else self.conf.lr_E
             self.conf.lr_eps = self.conf.lr if self.conf.lr_eps is None else self.conf.lr_eps
             self._zd_d_params = [
@@ -146,6 +159,7 @@ class LitModel(pl.LightningModule):
             self.zd_dictionary = None
             self._zd_d_params = []
         self._zd_training_stage_active = None
+        self._zd_stage2_step_kind_active = None
 
     def _iter_experiments(self):
         if self.logger is None:
@@ -266,9 +280,13 @@ class LitModel(pl.LightningModule):
             sampler = self.eval_sampler
         else:
             sampler = self.conf._make_diffusion_conf(T).make_sampler()
+        model_kwargs = build_condition_model_kwargs(self.conf,
+                                                    self.ema_model,
+                                                    x_start=x,
+                                                    cond=cond)
         out = sampler.ddim_reverse_sample_loop(self.ema_model,
                                                x,
-                                               model_kwargs={'cond': cond})
+                                               model_kwargs=model_kwargs)
         return out['sample']
 
     def _compute_zd_latents(self, x_start):
@@ -283,6 +301,7 @@ class LitModel(pl.LightningModule):
             atoms=self.zd_dictionary.atoms,
             lambda_l1=self.conf.lambda_l1,
             steps=self.conf.ista_steps,
+            solver=self.conf.ista_solver,
             return_history=True,
         )
         z_star = ista_out.code
@@ -307,20 +326,35 @@ class LitModel(pl.LightningModule):
         if self.conf.zd_train_mode == 'dict_then_diffusion':
             if self.num_samples < self.conf.zd_stage1_samples:
                 return 'stage1_dictionary'
-            return 'stage2_diffusion'
+            if self.conf.zd_stage2_mode == 'fixed_d':
+                return 'stage2_fixed_d'
+            return 'stage2_alternating'
         if (self.conf.zd_d_only_samples > 0
                 and self.num_samples < self.conf.zd_d_only_samples):
             return 'dict_warmup'
         return 'joint'
 
-    def _is_zd_d_only_stage(self):
-        return self._get_zd_training_stage() in [
-            'dict_warmup',
-            'stage1_dictionary',
-        ]
+    def _get_zd_stage2_step_kind(self):
+        stage = self._get_zd_training_stage()
+        if stage == 'stage2_fixed_d':
+            return 'diffusion'
+        if stage != 'stage2_alternating':
+            return None
+        stage1_steps = ((self.conf.zd_stage1_samples +
+                         self.conf.batch_size_effective - 1) //
+                        self.conf.batch_size_effective)
+        stage2_step = max(self.global_step - stage1_steps, 0)
+        if stage2_step % 2 == 0:
+            return 'diffusion'
+        return 'dictionary'
 
-    def _is_zd_diffusion_only_stage(self):
-        return self._get_zd_training_stage() == 'stage2_diffusion'
+    def _is_zd_d_only_step(self):
+        stage = self._get_zd_training_stage()
+        return stage in ['dict_warmup', 'stage1_dictionary'
+                         ] or self._get_zd_stage2_step_kind() == 'dictionary'
+
+    def _is_zd_stage2_diffusion_step(self):
+        return self._get_zd_stage2_step_kind() == 'diffusion'
 
     @staticmethod
     def _zd_stage_to_index(stage):
@@ -329,7 +363,8 @@ class LitModel(pl.LightningModule):
             'joint': 0.0,
             'dict_warmup': 1.0,
             'stage1_dictionary': 1.0,
-            'stage2_diffusion': 2.0,
+            'stage2_alternating': 2.0,
+            'stage2_fixed_d': 2.0,
         }[stage]
 
     def _sync_zd_training_stage(self):
@@ -343,8 +378,10 @@ class LitModel(pl.LightningModule):
                     stage_name = 'full joint training'
                 elif stage == 'stage1_dictionary':
                     stage_name = 'stage 1: dictionary-only training'
-                elif stage == 'stage2_diffusion':
-                    stage_name = 'stage 2: diffusion-only training'
+                elif stage == 'stage2_alternating':
+                    stage_name = 'stage 2: alternating diffusion/dictionary training'
+                elif stage == 'stage2_fixed_d':
+                    stage_name = 'stage 2: fixed-D encoder/decoder training'
                 else:
                     stage_name = stage
                 print(
@@ -377,6 +414,11 @@ class LitModel(pl.LightningModule):
         if z_e is None or z_d is None or z_star is None or ista_objectives is None:
             return {}
 
+        dictionary_spectral_norm = torch.linalg.matrix_norm(
+            self.zd_dictionary.atoms, ord=2)
+        ista_step_size = 1.0 / (dictionary_spectral_norm *
+                                dictionary_spectral_norm + 1e-8)
+        ista_threshold = ista_step_size * float(self.conf.lambda_l1)
         ista_drop = (ista_objectives[:, 0] - ista_objectives[:, -1]).mean()
         code_zero_count_mean = ((z_star.abs() <= 1e-6).float().sum(dim=1)
                                 ).mean()
@@ -395,6 +437,9 @@ class LitModel(pl.LightningModule):
             'code_active_fraction': code_active_fraction,
             'code_zero_percent': code_zero_percent,
             'ista_objective_drop': ista_drop,
+            'dictionary_spectral_norm': dictionary_spectral_norm,
+            'ista_step_size': ista_step_size,
+            'ista_threshold': ista_threshold,
             'dictionary_max_offdiag': dictionary_max_offdiag,
             'dead_atom_fraction': dead_atom_fraction,
             'z_d_mean': z_d_mean,
@@ -660,12 +705,20 @@ class LitModel(pl.LightningModule):
                 main training mode!!!
                 """
                 zd_stage = self._sync_zd_training_stage()
-                d_only_stage = zd_stage in ['dict_warmup', 'stage1_dictionary']
-                diffusion_only_stage = zd_stage == 'stage2_diffusion'
+                stage2_step_kind = self._get_zd_stage2_step_kind()
+                self._zd_stage2_step_kind_active = stage2_step_kind
+                d_only_stage = zd_stage in ['dict_warmup',
+                                            'stage1_dictionary'
+                                            ] or stage2_step_kind == 'dictionary'
+                stage2_fixed_d = zd_stage == 'stage2_fixed_d'
+                stage2_active = zd_stage in ['stage2_alternating',
+                                             'stage2_fixed_d']
                 if self.conf.use_zd_cond:
                     metrics['d_only_stage'] = float(d_only_stage)
                     metrics['training_stage'] = self._zd_stage_to_index(
                         zd_stage)
+                    metrics['stage2_dictionary_step'] = float(
+                        stage2_step_kind == 'dictionary')
 
                 if self.conf.use_zd_cond:
                     if d_only_stage:
@@ -679,14 +732,6 @@ class LitModel(pl.LightningModule):
                         loss = l_recon
                         metrics['D_recon'] = l_recon.detach()
                         metrics['z_e_z_d_mse'] = l_recon.detach()
-                    elif diffusion_only_stage:
-                        with torch.no_grad():
-                            zd_pack = self._compute_zd_latents(x_start)
-                            z_e = zd_pack['z_e'].detach()
-                            z_star = zd_pack['z_star'].detach()
-                            z_d = zd_pack['z_d'].detach()
-                            ista_objectives = zd_pack[
-                                'ista_objectives'].detach()
                     else:
                         zd_pack = self._compute_zd_latents(x_start)
                         z_e = zd_pack['z_e']
@@ -709,10 +754,10 @@ class LitModel(pl.LightningModule):
                         zd_cond = self._get_zd_diffusion_condition(
                             z_d=z_d,
                             z_star=z_star,
-                            diffusion_only_stage=diffusion_only_stage,
+                            diffusion_only_stage=stage2_active,
                         )
                         model_kwargs['z_d'] = zd_cond
-                        if diffusion_only_stage and not self.conf.zd_cond_only:
+                        if stage2_active and not self.conf.zd_cond_only:
                             model_kwargs['cond'] = z_e
                     if self.conf.use_zd_cond or hasattr(self.model, 'encoder'):
                         # Use the same explicit noise for the main loss and shuffled-condition
@@ -740,19 +785,26 @@ class LitModel(pl.LightningModule):
                         metrics['z_l2_norm_std'] = z_l2_norm.std(
                             unbiased=False)
 
-                    if self.conf.use_zd_cond and not diffusion_only_stage:
-                        # L = L_diff + gamma*||z_e-z_d||^2 + beta*||z_d-z_e||^2
-                        #   + lambda_ze_zd*||z_e-z_d||^2
+                    if self.conf.use_zd_cond:
                         l_align_zd = torch.mean((z_e - z_d)**2)
-                        l_align_ze = torch.mean((z_d - z_e)**2)
-                        l_align = (self.conf.gamma_align * l_align_zd +
-                                   self.conf.beta_align * l_align_ze)
-                        l_ze_zd = self.conf.lambda_ze_zd * l_align_zd
-                        loss = loss + l_align
-                        loss = loss + l_ze_zd
-                        metrics['alignment_loss'] = l_align.detach()
-                        metrics['z_e_z_d_loss'] = l_ze_zd.detach()
-                        metrics['z_e_z_d_mse'] = l_align_zd.detach()
+                        if stage2_fixed_d:
+                            l_ze_zd = self.conf.lambda_ze_zd * l_align_zd
+                            loss = loss + l_ze_zd
+                            metrics['z_e_z_d_loss'] = l_ze_zd.detach()
+                            metrics['z_e_z_d_mse'] = l_align_zd.detach()
+                        elif not stage2_active:
+                            # L = L_diff + gamma*||z_e-z_d||^2
+                            #   + beta*||z_d-z_e||^2
+                            #   + lambda_ze_zd*||z_e-z_d||^2
+                            l_align_ze = torch.mean((z_d - z_e)**2)
+                            l_align = (self.conf.gamma_align * l_align_zd +
+                                       self.conf.beta_align * l_align_ze)
+                            l_ze_zd = self.conf.lambda_ze_zd * l_align_zd
+                            loss = loss + l_align
+                            loss = loss + l_ze_zd
+                            metrics['alignment_loss'] = l_align.detach()
+                            metrics['z_e_z_d_loss'] = l_ze_zd.detach()
+                            metrics['z_e_z_d_mse'] = l_align_zd.detach()
 
                     if self.conf.use_zd_cond:
                         with torch.no_grad():
@@ -760,7 +812,7 @@ class LitModel(pl.LightningModule):
                             zd_cond = self._get_zd_diffusion_condition(
                                 z_d=z_d,
                                 z_star=z_star,
-                                diffusion_only_stage=diffusion_only_stage,
+                                diffusion_only_stage=stage2_active,
                             )
                             if zd_cond.shape[0] > 1:
                                 shift = torch.randint(1,
@@ -771,7 +823,7 @@ class LitModel(pl.LightningModule):
                                 z_d_shuffle = torch.randn_like(zd_cond)
 
                             shuf_model_kwargs = {'z_d': z_d_shuffle}
-                            if diffusion_only_stage and not self.conf.zd_cond_only:
+                            if stage2_active and not self.conf.zd_cond_only:
                                 shuf_model_kwargs['cond'] = z_e
 
                             losses_shuf = self.sampler.training_losses(
@@ -858,6 +910,9 @@ class LitModel(pl.LightningModule):
                     'code_zero_percent',
                     'code_active_fraction',
                     'ista_objective_drop',
+                    'dictionary_spectral_norm',
+                    'ista_step_size',
+                    'ista_threshold',
                     'dictionary_max_offdiag',
                     'dead_atom_fraction',
                     'z_d_mean',
@@ -868,6 +923,7 @@ class LitModel(pl.LightningModule):
                     'z_e_l2_norm_std',
                     'd_only_stage',
                     'training_stage',
+                    'stage2_dictionary_step',
             ]:
                 if key in gathered:
                     self._log_scalar_all(f'zd/{key}', gathered[key],
@@ -909,11 +965,11 @@ class LitModel(pl.LightningModule):
 
     def on_before_optimizer_step(self, optimizer: Optimizer,
                                  optimizer_idx: int) -> None:
-        if self._is_zd_d_only_stage():
+        if (self._get_zd_training_stage() in ['dict_warmup', 'stage1_dictionary']
+                or self._zd_stage2_step_kind_active == 'dictionary'):
             self._clear_param_grads(self._zd_enc_params)
             self._clear_param_grads(self._zd_eps_params)
-        elif self._is_zd_diffusion_only_stage():
-            self._clear_param_grads(self._zd_enc_params)
+        elif self._zd_stage2_step_kind_active == 'diffusion':
             self._clear_param_grads(self._zd_d_params)
         self._log_zd_grad_norms()
         # fix the fp16 + clip grad norm problem with pytorch lightinng
@@ -932,7 +988,8 @@ class LitModel(pl.LightningModule):
 
     def on_before_zero_grad(self, optimizer: Optimizer) -> None:
         # Lightning 1.4 calls this after optimizer.step() and before zero_grad().
-        self._renormalize_zd_dictionary()
+        if self._zd_stage2_step_kind_active != 'diffusion':
+            self._renormalize_zd_dictionary()
 
     def log_sample(self, x_start):
         """
@@ -993,10 +1050,19 @@ class LitModel(pl.LightningModule):
                                     cond = (cond + cond[i]) / 2
                             else:
                                 cond = None
+                        model_kwargs = None
+                        if _xstart is not None or cond is not None or self.conf.use_zd_cond:
+                            model_kwargs = build_condition_model_kwargs(
+                                self.conf,
+                                model,
+                                x_start=_xstart,
+                                cond=cond,
+                            )
                         gen = self.eval_sampler.sample(model=model,
                                                        noise=x_T,
-                                                       cond=cond,
-                                                       x_start=_xstart,
+                                                       cond=None if model_kwargs is not None else cond,
+                                                       x_start=None if model_kwargs is not None else _xstart,
+                                                       model_kwargs=model_kwargs,
                                                        eta=self.conf.ddim_eta)
                     Gen.append(gen)
 

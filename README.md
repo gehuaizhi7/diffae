@@ -198,10 +198,11 @@ This experiment can be run on 2080Ti's.
 python run_celeba64.py
 ```
 
-### z_d Sparse Conditioning (Encoder + ISTA + Dictionary)
+### z_d Sparse Conditioning (Encoder + ISTA/FISTA + Dictionary)
 
 Use `run_zd_cond.py` to enable the external sparse-conditioned latent `z_d` path.
 By default, this runs in exact `z_d`-only conditioning mode (`--disable_zd_cond_only` turns that off).
+Add `--ista_solver fista` to use FISTA instead of ISTA in the sparse-code inference loop.
 
 Example two-stage training command:
 
@@ -226,8 +227,8 @@ python run_zd_cond.py \
 
 In `--zd-train-mode dict_then_diffusion`:
 - stage 1 freezes the pretrained encoder, skips diffusion entirely, and trains only `D` with `||z_d - z_e||_2^2`
-- stage 2 freezes both the encoder and `D`, and trains only the diffusion model with `L_diff`
-- add `--zd-stage2-use-zstar-cond` if you want stage 2 to condition on `z*` instead of `z_d`
+- stage 2 alternates optimizer steps: one step freezes `D` and trains the encoder + diffusion model with `L_diff`, the next step freezes the encoder + diffusion model and trains only `D` with `||z_d - z_e||_2^2`
+- add `--zd-stage2-use-zstar-cond` if you want the stage-2 diffusion steps to condition on `z*` instead of `z_d`
 
 The older warmup-then-joint path is still available with the default
 `--zd-train-mode joint`; in that mode, `--d_only_samples N` keeps only `D`
@@ -251,3 +252,4 @@ Additional logged z_d metrics:
 - `zd/z_e_l2_norm_mean`, `zd/z_e_l2_norm_std`
 - `zd/d_only_stage`
 - `zd/training_stage`
+- `zd/stage2_dictionary_step`

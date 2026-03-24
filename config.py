@@ -128,6 +128,8 @@ class TrainConfig(BaseConfig):
     k: int = 1024
     lambda_l1: float = 0.1
     ista_steps: int = 5
+    # sparse-code inference algorithm for the unrolled solver.
+    ista_solver: str = 'ista'
     lambda_ze_zd: float = 0.0
     beta_align: float = 0.0
     gamma_align: float = 0.0
@@ -136,11 +138,18 @@ class TrainConfig(BaseConfig):
     # 'joint' keeps the current behavior.
     # 'dict_then_diffusion' does:
     #   stage 1: fix encoder, train only D with ||z_d - z_e||_2^2
-    #   stage 2: fix encoder and D, train only the diffusion loss L_diff
+    #   stage 2: behavior is controlled by zd_stage2_mode.
     zd_train_mode: str = 'joint'
     zd_stage1_samples: int = 0
-    # when enabled for dict_then_diffusion, stage-2 diffusion conditions on z*
-    # (the sparse code) instead of z_d = D z*.
+    # for dict_then_diffusion stage 2:
+    #   'alternating': alternate diffusion steps (fix D, train encoder +
+    #                  denoiser with L_diff) and dictionary steps
+    #                  (fix encoder + denoiser, train D with ||z_d-z_e||^2)
+    #   'fixed_d': keep D fixed and train only encoder + denoiser with
+    #              L_diff + lambda_ze_zd * ||z_e-z_d||^2
+    zd_stage2_mode: str = 'alternating'
+    # when enabled for dict_then_diffusion, stage-2 diffusion steps condition
+    # on z* (the sparse code) instead of z_d = D z*.
     zd_stage2_use_zstar_cond: bool = False
     # use z_d as the only conditioning source in the denoiser (exact algorithm mode)
     zd_cond_only: bool = True

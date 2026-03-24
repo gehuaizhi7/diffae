@@ -1,0 +1,48 @@
+{
+  "ckpt": "checkpoints/ffhq128_autoenc_130M_zd_3stages_alter_new/last.ckpt",
+  "template": "ffhq128_autoenc_130M",
+  "device": "cuda:6",
+  "use_ema": true,
+  "steps": 1000,
+  "indices": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "split": "test",
+  "input_dir": null,
+  "invert_noise": false,
+  "save_progress": false,
+  "save_every": 50,
+  "progress_kind": "pred_xstart",
+  "seed": 0,
+  "noise_seeds": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "eta": 0.0,
+  "exp_name": "ffhq128_autoenc_130M_zd_3stages_alter_new",
+  "training_log_steps": 20,
+  "noise_runs": [
+    {
+      "label": "seed0",
+      "source": "random(seed=0)"
+    },
+    {
+      "label": "seed1",
+      "source": "random(seed=1)"
+    },
+    {
+      "label": "seed2",
+      "source": "random(seed=2)"
+    },
+    {
+      "label": "seed3",
+      "source": "random(seed=3)"
+    }
+  ],
+  "same_condition_across_runs": true
+}

@@ -39,10 +39,18 @@ def parse_args():
     parser.add_argument('--k', type=int, default=None)
     parser.add_argument('--lambda_l1', type=float, default=None)
     parser.add_argument('--ista_steps', type=int, default=None)
+    parser.add_argument('--ista_solver',
+                        '--ista-solver',
+                        dest='ista_solver',
+                        choices=['ista', 'fista'],
+                        default=None,
+                        help=('Sparse-code inference algorithm used by the '
+                              'unrolled solver.'))
     parser.add_argument('--lambda_ze_zd',
                         type=float,
                         default=None,
-                        help='Coefficient for the joint-training ||z_e - z_d||_2^2 loss.')
+                        help=('Coefficient for the ||z_e - z_d||_2^2 loss used '
+                              'in joint training and fixed-D stage 2.'))
     parser.add_argument('--beta_align', type=float, default=None)
     parser.add_argument('--gamma_align', type=float, default=None)
     parser.add_argument('--lr_D', type=float, default=None)
@@ -61,7 +69,7 @@ def parse_args():
                               '"joint" keeps the current path, while '
                               '"dict_then_diffusion" runs stage 1 '
                               '(dictionary only) then stage 2 '
-                              '(diffusion only).'))
+                              '(configured by --zd-stage2-mode).'))
     parser.add_argument('--zd_stage1_samples',
                         '--zd-stage1-samples',
                         dest='zd_stage1_samples',
@@ -69,14 +77,27 @@ def parse_args():
                         default=None,
                         help=('For --zd_train_mode=dict_then_diffusion, '
                               'number of samples in stage 1 before switching '
-                              'to diffusion-only stage 2.'))
+                              'to stage 2.'))
+    parser.add_argument('--zd_stage2_mode',
+                        '--zd-stage2-mode',
+                        dest='zd_stage2_mode',
+                        choices=['alternating', 'fixed_d'],
+                        default=None,
+                        help=('Stage-2 behavior for '
+                              '--zd_train_mode=dict_then_diffusion. '
+                              '"alternating" keeps the current alternating '
+                              'diffusion/dictionary updates, while '
+                              '"fixed_d" freezes D and trains only encoder '
+                              '+ decoder with L_diff + lambda_ze_zd * '
+                              '||z_e - z_d||_2^2.'))
     parser.add_argument('--zd_stage2_use_zstar_cond',
                         '--zd-stage2-use-zstar-cond',
                         dest='zd_stage2_use_zstar_cond',
                         action='store_true',
                         help=('For --zd_train_mode=dict_then_diffusion, use '
                               'the sparse code z* as the diffusion condition '
-                              'in stage 2 instead of z_d = D z*.'))
+                              'for stage-2 diffusion steps instead of '
+                              'z_d = D z*.'))
     parser.add_argument('--lr_E', type=float, default=None)
     parser.add_argument('--lr_eps', type=float, default=None)
     parser.add_argument('--ddim_eta', type=float, default=None)
@@ -158,6 +179,8 @@ def main():
         conf.lambda_l1 = args.lambda_l1
     if args.ista_steps is not None:
         conf.ista_steps = args.ista_steps
+    if args.ista_solver is not None:
+        conf.ista_solver = args.ista_solver
     if args.lambda_ze_zd is not None:
         conf.lambda_ze_zd = args.lambda_ze_zd
     if args.beta_align is not None:
@@ -172,6 +195,8 @@ def main():
         conf.zd_train_mode = args.zd_train_mode
     if args.zd_stage1_samples is not None:
         conf.zd_stage1_samples = args.zd_stage1_samples
+    if args.zd_stage2_mode is not None:
+        conf.zd_stage2_mode = args.zd_stage2_mode
     if args.zd_stage2_use_zstar_cond:
         conf.zd_stage2_use_zstar_cond = True
     if args.lr_E is not None:

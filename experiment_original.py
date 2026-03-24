@@ -149,9 +149,13 @@ class LitModel(pl.LightningModule):
             sampler = self.eval_sampler
         else:
             sampler = self.conf._make_diffusion_conf(T).make_sampler()
+        model_kwargs = build_condition_model_kwargs(self.conf,
+                                                    self.ema_model,
+                                                    x_start=x,
+                                                    cond=cond)
         out = sampler.ddim_reverse_sample_loop(self.ema_model,
                                                x,
-                                               model_kwargs={'cond': cond})
+                                               model_kwargs=model_kwargs)
         return out['sample']
 
     def forward(self, noise=None, x_start=None, ema_model: bool = False):

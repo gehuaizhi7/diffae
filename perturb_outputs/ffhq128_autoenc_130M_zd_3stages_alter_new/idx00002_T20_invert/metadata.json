@@ -1,0 +1,2281 @@
+{
+  "ckpt": "checkpoints/ffhq128_autoenc_130M_zd_3stages_alter_new/last.ckpt",
+  "template": "ffhq128_autoenc_130M",
+  "device": "cuda:6",
+  "use_ema": true,
+  "steps": 20,
+  "noise_mode": "invert",
+  "noise_seed": 0,
+  "x_T_source": "ddim_inversion",
+  "split": "test",
+  "input_dir": null,
+  "index": 2,
+  "sample_name": "idx00002",
+  "eta": 0.0,
+  "seed": 0,
+  "perturb_mode": "relative",
+  "deltas": [
+    -4.0,
+    -2.0,
+    2.0,
+    4.0
+  ],
+  "display_order": [
+    -4.0,
+    -2.0,
+    2.0,
+    4.0
+  ],
+  "nonzero_eps": 1e-06,
+  "all_active_count": 83,
+  "selected_active_count": 83,
+  "lambda_l1": 2.5,
+  "ista_steps": 32,
+  "ista_solver": "fista",
+  "zd_stage2_use_zstar_cond": false,
+  "zd_cond_only": true,
+  "all_active_rows_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/all_active_rows.png",
+  "perturbations": [
+    {
+      "index": 2390,
+      "base_value": 0.1958940476179123,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2390_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": -0.5876821279525757,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2390_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": -0.1958940476179123,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2390_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": 0.5876821279525757,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2390_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": 0.9794702529907227,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2390_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 1433,
+      "base_value": -0.19588632881641388,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1433_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.5876590013504028,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1433_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.19588632881641388,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1433_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.5876590013504028,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1433_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.9794316291809082,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1433_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 3762,
+      "base_value": -0.19582270085811615,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3762_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.5874680876731873,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3762_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.19582270085811615,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3762_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.5874680876731873,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3762_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.9791135191917419,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3762_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 829,
+      "base_value": -0.19578368961811066,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0829_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.5873510837554932,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0829_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.19578368961811066,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0829_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.5873510837554932,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0829_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.9789184331893921,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0829_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 806,
+      "base_value": -0.1957416832447052,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0806_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.587225079536438,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0806_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.1957416832447052,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0806_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.587225079536438,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0806_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.9787083864212036,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0806_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 2543,
+      "base_value": -0.1954936683177948,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2543_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.586480975151062,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2543_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.1954936683177948,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2543_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.586480975151062,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2543_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.9774683713912964,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2543_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 3856,
+      "base_value": 0.19533327221870422,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3856_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": -0.5859998464584351,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3856_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": -0.19533327221870422,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3856_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": 0.5859998464584351,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3856_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": 0.9766663312911987,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3856_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 2749,
+      "base_value": 0.1951894313097,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2749_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": -0.5855683088302612,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2749_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": -0.1951894313097,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2749_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": 0.5855683088302612,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2749_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": 0.9759471416473389,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2749_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 3236,
+      "base_value": -0.19467128813266754,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3236_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.5840138792991638,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3236_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.19467128813266754,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3236_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.5840138792991638,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3236_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.9733564257621765,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3236_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 2913,
+      "base_value": 0.1945600062608719,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2913_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": -0.5836800336837769,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2913_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": -0.1945600062608719,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2913_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": 0.5836800336837769,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2913_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": 0.9728000164031982,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2913_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 1848,
+      "base_value": -0.1945372372865677,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1848_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.5836117267608643,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1848_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.1945372372865677,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1848_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.5836117267608643,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1848_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.9726861715316772,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1848_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 1385,
+      "base_value": 0.1945170760154724,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1385_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": -0.5835512280464172,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1385_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": -0.1945170760154724,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1385_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": 0.5835512280464172,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1385_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": 0.9725853800773621,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1385_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 2490,
+      "base_value": -0.19317765533924103,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2490_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.5795329809188843,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2490_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.19317765533924103,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2490_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.5795329809188843,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2490_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.965888261795044,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2490_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 3264,
+      "base_value": 0.19223681092262268,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3264_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": -0.5767104625701904,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3264_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": -0.19223681092262268,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3264_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": 0.5767104625701904,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3264_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": 0.961184024810791,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3264_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 908,
+      "base_value": 0.1921204775571823,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0908_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": -0.5763614177703857,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0908_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": -0.1921204775571823,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0908_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": 0.5763614177703857,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0908_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": 0.9606024026870728,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0908_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 71,
+      "base_value": 0.1917901337146759,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0071_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": -0.5753704309463501,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0071_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": -0.1917901337146759,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0071_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": 0.5753704309463501,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0071_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": 0.9589506387710571,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0071_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 496,
+      "base_value": -0.1916794627904892,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0496_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.5750383734703064,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0496_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.1916794627904892,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0496_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.5750383734703064,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0496_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.9583973288536072,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0496_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 2264,
+      "base_value": 0.19095151126384735,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2264_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": -0.5728545188903809,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2264_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": -0.19095151126384735,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2264_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": 0.5728545188903809,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2264_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": 0.954757571220398,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2264_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 760,
+      "base_value": 0.18890416622161865,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0760_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": -0.566712498664856,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0760_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": -0.18890416622161865,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0760_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": 0.566712498664856,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0760_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": 0.9445208311080933,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0760_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 535,
+      "base_value": 0.1883920133113861,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0535_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": -0.5651760101318359,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0535_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": -0.1883920133113861,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0535_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": 0.5651760101318359,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0535_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": 0.9419600963592529,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0535_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 417,
+      "base_value": 0.1883232742547989,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0417_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": -0.5649698376655579,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0417_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": -0.1883232742547989,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0417_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": 0.5649698376655579,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0417_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": 0.9416163563728333,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0417_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 1687,
+      "base_value": -0.18827933073043823,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1687_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.5648379921913147,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1687_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.18827933073043823,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1687_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.5648379921913147,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1687_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.9413966536521912,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1687_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 2323,
+      "base_value": -0.18779270350933075,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2323_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.563378095626831,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2323_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.18779270350933075,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2323_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.563378095626831,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2323_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.9389635324478149,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2323_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 2738,
+      "base_value": -0.18568618595600128,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2738_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.557058572769165,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2738_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.18568618595600128,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2738_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.557058572769165,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2738_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.9284309148788452,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2738_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 818,
+      "base_value": 0.1839553266763687,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0818_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": -0.5518659949302673,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0818_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": -0.1839553266763687,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0818_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": 0.5518659949302673,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0818_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": 0.9197766184806824,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0818_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 1913,
+      "base_value": -0.1829780638217926,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1913_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.5489342212677002,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1913_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.1829780638217926,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1913_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.5489342212677002,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1913_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.9148902893066406,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1913_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 581,
+      "base_value": 0.18077245354652405,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0581_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": -0.5423173904418945,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0581_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": -0.18077245354652405,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0581_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": 0.5423173904418945,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0581_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": 0.9038622379302979,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0581_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 1408,
+      "base_value": 0.1793699711561203,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1408_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": -0.5381098985671997,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1408_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": -0.1793699711561203,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1408_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": 0.5381098985671997,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1408_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": 0.8968498706817627,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1408_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 3672,
+      "base_value": 0.1788766086101532,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3672_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": -0.5366297960281372,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3672_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": -0.1788766086101532,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3672_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": 0.5366297960281372,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3672_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": 0.8943830728530884,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3672_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 3122,
+      "base_value": -0.17878422141075134,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3122_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.5363526344299316,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3122_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.17878422141075134,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3122_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.5363526344299316,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3122_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.8939211368560791,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3122_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 3097,
+      "base_value": -0.17747364938259125,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3097_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.5324209332466125,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3097_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.17747364938259125,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3097_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.5324209332466125,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3097_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.8873682618141174,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3097_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 66,
+      "base_value": -0.17434290051460266,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0066_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.5230287313461304,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0066_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.17434290051460266,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0066_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.5230287313461304,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0066_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.8717144727706909,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0066_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 555,
+      "base_value": 0.1738675981760025,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0555_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": -0.5216028094291687,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0555_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": -0.1738675981760025,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0555_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": 0.5216028094291687,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0555_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": 0.8693379759788513,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0555_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 3332,
+      "base_value": 0.17379729449748993,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3332_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": -0.5213918685913086,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3332_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": -0.17379729449748993,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3332_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": 0.5213918685913086,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3332_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": 0.8689864873886108,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3332_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 3967,
+      "base_value": 0.17161697149276733,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3967_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": -0.514850914478302,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3967_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": -0.17161697149276733,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3967_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": 0.514850914478302,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3967_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": 0.8580848574638367,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3967_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 769,
+      "base_value": -0.16697783768177032,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0769_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.5009335279464722,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0769_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.16697783768177032,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0769_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.5009335279464722,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0769_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.8348891735076904,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0769_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 1383,
+      "base_value": 0.16515079140663147,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1383_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": -0.4954523742198944,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1383_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": -0.16515079140663147,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1383_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": 0.4954523742198944,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1383_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": 0.825753927230835,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1383_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 2351,
+      "base_value": -0.1625632643699646,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2351_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.4876897931098938,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2351_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.1625632643699646,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2351_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.4876897931098938,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2351_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.812816321849823,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2351_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 1793,
+      "base_value": 0.16019278764724731,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1793_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": -0.48057836294174194,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1793_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": -0.16019278764724731,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1793_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": 0.48057836294174194,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1793_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": 0.8009639382362366,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1793_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 3858,
+      "base_value": 0.16010861098766327,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3858_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": -0.4803258180618286,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3858_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": -0.16010861098766327,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3858_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": 0.4803258180618286,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3858_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": 0.8005430698394775,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3858_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 3001,
+      "base_value": -0.15955208241939545,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3001_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.47865623235702515,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3001_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.15955208241939545,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3001_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.47865623235702515,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3001_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.7977604269981384,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3001_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 2587,
+      "base_value": 0.15945683419704437,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2587_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": -0.4783704876899719,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2587_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": -0.15945683419704437,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2587_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": 0.4783704876899719,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2587_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": 0.7972841858863831,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2587_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 527,
+      "base_value": -0.1465611606836319,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0527_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.4396834969520569,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0527_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.1465611606836319,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0527_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.4396834969520569,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0527_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.7328057885169983,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0527_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 1774,
+      "base_value": 0.1411186307668686,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1774_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": -0.4233558773994446,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1774_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": -0.1411186307668686,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1774_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": 0.4233558773994446,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1774_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": 0.7055931687355042,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1774_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 1907,
+      "base_value": -0.14057108759880066,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1907_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.421713262796402,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1907_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.14057108759880066,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1907_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.421713262796402,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1907_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.7028554677963257,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1907_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 2753,
+      "base_value": -0.13382887840270996,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2753_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.4014866352081299,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2753_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.13382887840270996,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2753_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.4014866352081299,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2753_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.6691443920135498,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2753_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 2397,
+      "base_value": -0.13133545219898224,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2397_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.3940063714981079,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2397_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.13133545219898224,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2397_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.3940063714981079,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2397_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.65667724609375,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2397_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 773,
+      "base_value": -0.12593142688274384,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0773_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.3777942657470703,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0773_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.12593142688274384,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0773_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.3777942657470703,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0773_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.6296571493148804,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0773_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 3577,
+      "base_value": 0.12323878705501556,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3577_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": -0.3697163462638855,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3577_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": -0.12323878705501556,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3577_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": 0.3697163462638855,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3577_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": 0.616193950176239,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3577_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 2450,
+      "base_value": -0.12250746786594391,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2450_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.3675224184989929,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2450_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.12250746786594391,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2450_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.3675224184989929,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2450_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.6125373244285583,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2450_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 584,
+      "base_value": 0.11980246007442474,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0584_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": -0.35940736532211304,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0584_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": -0.11980246007442474,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0584_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": 0.35940736532211304,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0584_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": 0.5990123152732849,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0584_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 3643,
+      "base_value": -0.11842603981494904,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3643_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.3552781343460083,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3643_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.11842603981494904,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3643_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.3552781343460083,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3643_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.592130184173584,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3643_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 2184,
+      "base_value": -0.10834276676177979,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2184_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.32502830028533936,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2184_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.10834276676177979,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2184_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.32502830028533936,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2184_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.5417138338088989,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2184_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 1293,
+      "base_value": -0.09779667854309082,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1293_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.29339003562927246,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1293_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.09779667854309082,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1293_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.29339003562927246,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1293_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.4889833927154541,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1293_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 3743,
+      "base_value": -0.08951815962791443,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3743_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.2685544788837433,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3743_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.08951815962791443,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3743_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.2685544788837433,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3743_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.44759079813957214,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3743_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 1196,
+      "base_value": -0.0862601101398468,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1196_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.2587803304195404,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1196_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.0862601101398468,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1196_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.2587803304195404,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1196_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.431300550699234,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1196_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 2159,
+      "base_value": 0.08019709587097168,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2159_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": -0.24059128761291504,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2159_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": -0.08019709587097168,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2159_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": 0.24059128761291504,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2159_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": 0.4009854793548584,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2159_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 3202,
+      "base_value": 0.07580900192260742,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3202_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": -0.22742700576782227,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3202_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": -0.07580900192260742,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3202_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": 0.22742700576782227,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3202_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": 0.3790450096130371,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3202_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 2670,
+      "base_value": 0.06379230320453644,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2670_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": -0.19137690961360931,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2670_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": -0.06379230320453644,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2670_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": 0.19137690961360931,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2670_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": 0.318961501121521,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2670_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 162,
+      "base_value": 0.05114883556962013,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0162_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": -0.1534465104341507,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0162_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": -0.05114883556962013,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0162_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": 0.1534465104341507,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0162_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": 0.25574418902397156,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0162_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 217,
+      "base_value": 0.043040573596954346,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0217_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": -0.12912172079086304,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0217_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": -0.043040573596954346,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0217_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": 0.12912172079086304,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0217_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": 0.21520286798477173,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0217_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 895,
+      "base_value": -0.04138832911849022,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0895_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.12416498363018036,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0895_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.04138832911849022,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0895_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.12416498363018036,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0895_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.2069416493177414,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0895_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 1409,
+      "base_value": -0.03905344754457474,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1409_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.11716034263372421,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1409_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.03905344754457474,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1409_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.11716034263372421,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1409_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.1952672302722931,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1409_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 3450,
+      "base_value": 0.03900395333766937,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3450_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": -0.11701186001300812,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3450_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": -0.03900395333766937,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3450_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": 0.11701186001300812,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3450_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": 0.19501976668834686,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3450_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 3404,
+      "base_value": -0.03890412300825119,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3404_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.11671236902475357,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3404_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.03890412300825119,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3404_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.11671236902475357,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3404_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.19452062249183655,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3404_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 3709,
+      "base_value": 0.03889711573719978,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3709_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": -0.11669135093688965,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3709_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": -0.03889711573719978,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3709_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": 0.11669135093688965,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3709_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": 0.19448557496070862,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_3709_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 847,
+      "base_value": -0.03876478597521782,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0847_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.11629435420036316,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0847_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.03876478597521782,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0847_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.11629435420036316,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0847_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.1938239336013794,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0847_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 483,
+      "base_value": -0.038754723966121674,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0483_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.11626417189836502,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0483_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.038754723966121674,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0483_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.11626417189836502,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0483_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.19377362728118896,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0483_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 4094,
+      "base_value": 0.03850870579481125,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_4094_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": -0.11552611738443375,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_4094_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": -0.03850870579481125,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_4094_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": 0.11552611738443375,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_4094_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": 0.19254353642463684,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_4094_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 1308,
+      "base_value": 0.03811986371874809,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1308_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": -0.11435958743095398,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1308_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": -0.03811986371874809,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1308_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": 0.11435958743095398,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1308_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": 0.19059932231903076,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1308_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 1561,
+      "base_value": 0.0378139428794384,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1561_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": -0.1134418249130249,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1561_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": -0.0378139428794384,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1561_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": 0.1134418249130249,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1561_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": 0.1890697181224823,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1561_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 2300,
+      "base_value": -0.03777294605970383,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2300_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.11331883817911148,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2300_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.03777294605970383,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2300_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.11331883817911148,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2300_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.18886473774909973,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2300_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 1672,
+      "base_value": 0.03777197748422623,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1672_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": -0.11331593245267868,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1672_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": -0.03777197748422623,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1672_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": 0.11331593245267868,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1672_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": 0.18885987997055054,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1672_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 18,
+      "base_value": 0.037699852138757706,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0018_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": -0.11309956014156342,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0018_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": -0.037699852138757706,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0018_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": 0.11309956014156342,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0018_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": 0.18849925696849823,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0018_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 805,
+      "base_value": -0.03733275085687637,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0805_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.11199825257062912,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0805_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.03733275085687637,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0805_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.11199825257062912,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0805_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.18666374683380127,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0805_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 543,
+      "base_value": -0.03722824156284332,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0543_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.11168472468852997,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0543_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.03722824156284332,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0543_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.11168472468852997,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0543_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.1861412078142166,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0543_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 4049,
+      "base_value": 0.03674622252583504,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_4049_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": -0.11023867130279541,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_4049_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": -0.03674622252583504,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_4049_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": 0.11023867130279541,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_4049_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": 0.1837311089038849,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_4049_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 1165,
+      "base_value": -0.03641209751367569,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1165_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.10923629254102707,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1165_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.03641209751367569,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1165_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.10923629254102707,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1165_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.18206048011779785,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_1165_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 2634,
+      "base_value": -0.017105616629123688,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2634_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.05131684988737106,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2634_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.017105616629123688,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2634_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.05131684988737106,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2634_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.08552808314561844,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2634_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 141,
+      "base_value": -0.01681642234325409,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0141_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.05044926702976227,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0141_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.01681642234325409,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0141_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.05044926702976227,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0141_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.08408211171627045,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0141_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 212,
+      "base_value": -0.016188228502869606,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0212_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.04856468737125397,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0212_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.016188228502869606,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0212_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.04856468737125397,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0212_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.08094114065170288,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_0212_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 2914,
+      "base_value": -0.014112597331404686,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2914_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": 0.04233779013156891,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2914_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": 0.014112597331404686,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2914_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": -0.04233779013156891,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2914_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": -0.07056298851966858,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2914_p4.png"
+        }
+      ]
+    },
+    {
+      "index": 2978,
+      "base_value": 0.0005487025482580066,
+      "grid_path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2978_grid.png",
+      "variants": [
+        {
+          "delta": -4.0,
+          "value": -0.0016461076447740197,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2978_m4.png"
+        },
+        {
+          "delta": -2.0,
+          "value": -0.0005487025482580066,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2978_m2.png"
+        },
+        {
+          "delta": 2.0,
+          "value": 0.0016461076447740197,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2978_p2.png"
+        },
+        {
+          "delta": 4.0,
+          "value": 0.0027435128577053547,
+          "path": "/home/CAMPUS/hge2/diffae/perturb_outputs/ffhq128_autoenc_130M_zd_3stages_alter_new/idx00002_T20_invert/atom_2978_p4.png"
+        }
+      ]
+    }
+  ]
+}

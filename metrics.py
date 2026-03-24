@@ -80,7 +80,9 @@ def evaluate_lpips(
                 model_kwargs = {}
                 if conf.model_type.has_autoenc():
                     with torch.no_grad():
-                        model_kwargs = model.encode(imgs)
+                        model_kwargs = build_condition_model_kwargs(conf,
+                                                                    model,
+                                                                    x_start=imgs)
                 x_T = sampler.ddim_reverse_sample_loop(
                     model=model,
                     x=imgs,
